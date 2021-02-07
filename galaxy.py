@@ -88,8 +88,10 @@ def main():
         if val['slack'] ==0.0:
             print("This constraint is a binding constraint")
             print("the constraint ", val['constraint'].GetCoefficient(x),"* x +",val['constraint'].GetCoefficient(y) ,"* y has a direct impact on the optimal solution")
+            print("shadow price is ", val['constraint'].dual_value())
         else:
             print("This constraint is a non-binding constraint", val['constraint'])
+            print("dual ", val['constraint'].dual_value())
             print("the constraint ", val['constraint'].GetCoefficient(x),"* x +",val['constraint'].GetCoefficient(y) ,"* y has no direct impact on the optimal solution")
             if  val['slack'] >0.0:
                 print("The total limit is not used yet. It had total limit of", val['constraint'].ub(), "but used only",  val['constraint'].ub()-val['slack'])
