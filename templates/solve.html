@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Solve LP</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='site.css')}}" />
+    </head>
+    <body>
+        {%if result %}
+            <span class="message"> The result is</span> {{ result }}!</span> 
+        {% else %}
+            <span class="message">No result to show</span>
+        {% endif %}
+    </body>
+</html>

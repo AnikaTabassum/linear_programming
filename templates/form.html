@@ -1,0 +1,7 @@
+<form action="{{ url_for("gfg")}}" method="post"> 
+<label for="objective_function">Enter Objective Function: (Example Format: 8x1+5x2)</label> 
+<input type="text" id="objective_function" name="objfunc" placeholder="objective_function"> 
+
+<label for="constraints">Enter Constraints: (Example Format: 2x1+x2<=1000,3x1+4x2<=2400,x1+x2<=700,x1-x2<=350,x1>=0,x2>=0) </label> 
+<input type="text" id="constraints" name="constr" placeholder="constraints"> 
+<button type="submit">Solve</button> 
