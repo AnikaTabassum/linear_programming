@@ -247,8 +247,9 @@ def solve(name = None):
         result="solve kori"
     )
 
+ans=None
 @app.route('/', methods =["GET", "POST"]) 
-def gfg(): 
+def gfg(ans=""): 
     if request.method == "POST": 
        # getting input with name = fname in HTML form 
        objfunc = request.form.get("objfunc") 
@@ -256,5 +257,8 @@ def gfg():
        constr = request.form.get("constr") 
        #ans = demo_main(objfunc+constr) 
        ans = main(objfunc, constr)
-       return ans 
-    return render_template("form.html") 
+       #return ans
+    return render_template(
+        "form.html",
+        result=ans
+    )  
