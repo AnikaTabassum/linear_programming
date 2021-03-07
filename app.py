@@ -4,12 +4,17 @@ from flask import render_template, request
 app = Flask(__name__)
 
 #generic linear programming
+import json
+import re
+import numpy as np
 from ortools.linear_solver import pywraplp
+
 Obj_Func = ""
 sign = 3
 ans_map = {}
 num_of_var = 0
 splitted_objective_function =""
+range_constraint_list = []
 
 def getConstrExpr(constraint):
     if "<=" in constraint:
@@ -35,26 +40,36 @@ def getConstrExpr(constraint):
     
     num_of_var = len(splitted_lhs)
     
+    range_constr = ""    
     new_constr = ""
+    
     for nv in range(0,num_of_var):
         coeff_index = splitted_lhs[nv].split('x')
         coeff = coeff_index[0]
         index = coeff_index[1]
+        
         if coeff=="":
             coeff = "1"
+            
+        range_constr+=str(coeff)+"x"+str(index)
         new_constr+=str(coeff)+" * x["+str(index)+"]"
+        
         if nv!=num_of_var-1:
             if "+" in lhs:
                 new_constr+=" + "
+                range_constr+="+"
             elif "-" in lhs:
                 new_constr+=" - "
+                range_constr+="-"
           
     if "<=" in constraint:
         new_constr+=" <= "+str(rhs)
 
     elif ">=" in constraint:
         new_constr+=" >= "+str(rhs)
-    return new_constr
+    
+    range_constr+="-"+str(rhs)
+    return new_constr,range_constr
   
     
 def getExpr(splitted_objective_function,num_of_var):
@@ -74,6 +89,152 @@ def getExpr(splitted_objective_function,num_of_var):
             obj_func+=" + "
     
     return obj_func
+
+def getRangeOfOptimality(equation1,equation2,optimalEquation):
+    slope1 = [float(i) for i in re.split('[xy]', equation1)]
+    print((slope1[0]),slope1[1])
+    slope2 = [float(i) for i in re.split('[xy]', equation2)]
+    print((slope2[0]),slope2[1])
+    optimalEquation+='-0'
+    optimalSlope = [float(i) for i in re.split('[xy]', optimalEquation)]
+    print((optimalSlope[0]),optimalSlope[1])
+    slope1 = (-slope1[0]/slope1[1])
+    slope2 = (-slope2[0] / slope2[1])
+    optimalSlopefinal = (-optimalSlope[0]/optimalSlope[1])
+    #print(slope1,slope2,optimalSlope)
+    maximumForCx,minimumForCx = 0,0
+    maximumForCy, minimumForCy =0,0
+
+    if(slope1>slope2):
+        temp = slope1
+        slope1 = slope2
+        slope2 = temp
+
+    if(optimalSlopefinal<0):
+        maximumForCx = (-slope1)*optimalSlope[1]
+        minimumForCx = (-slope2)*optimalSlope[1]
+        maximumForCy = optimalSlope[0]/(-slope2)
+        minimumForCy = optimalSlope[0]/(-slope1)
+        print('range variable x [',minimumForCx,maximumForCx,']')
+        print('range variable y [', minimumForCy, maximumForCy, ']')
+    else:
+        minimumForCx = (slope1) * optimalSlope[1]
+        maximumForCx = (slope2) * optimalSlope[1]
+        minimumForCy = optimalSlope[0] / (slope2)
+        maximumForCy = optimalSlope[0] / (slope1)
+        print('range variable x [', minimumForCx, maximumForCx, ']')
+        print('range variable y [', minimumForCy, maximumForCy, ']')
+
+    RangeOfOptimality = {
+        'minValX': minimumForCx,
+        'maxValX': maximumForCx,
+        'minValY': minimumForCy,
+        'maxValY': maximumForCy,
+    }
+    return RangeOfOptimality
+
+def isSatisfyAllEquation(equationList,intersectPoint):
+    tag = False
+    for equation in equationList:
+        #print(equation)
+        point = [float(i) for i in re.split('[xy]', equation[0])]
+        point[2] = - point[2]
+        #print(point)
+        lhs = point[0]*intersectPoint[0]+point[1]*intersectPoint[1]
+        #print(lhs)
+        if(equation[1]==1):
+            if lhs >= point[2]:
+                tag = True
+            else:
+                tag = False
+                break
+        else:
+            if lhs <= point[2]:
+                tag = True
+            else:
+                tag = False
+                break
+        #print(tag)
+
+
+    return tag
+
+def getRangeOfFeasibility(equationList,equation1,equation2):
+
+    # print(equationList[0][0])
+    # # greater than constrains  == 0
+    # # less than constrains  == 1
+    # print(equation1)
+
+    finfIndexList=[]
+    for i in range(0,len(equationList)):
+        if(equationList[i][0]==equation1 or equationList[i][0]==equation2 ):
+            finfIndexList.append(i)
+    #print(finfIndexList)
+
+    del equationList[finfIndexList[0]]
+    del equationList[finfIndexList[1]-1]
+
+    #print(equationList)
+
+    point1 = [float(i) for i in re.split('[xy]', equation1)]
+    point1[2] = - point1[2]
+    #print(point1)
+    point2 = [float(i) for i in re.split('[xy]', equation2)]
+    point2[2] = - point2[2]
+    #print(point2)
+    cof = np.array([[point1[0], point1[1]], [point2[0], point2[1]]])
+
+    optimalEquation1Increase,optimalEquation1Decrease,optimalEquation2Increase,optimalEquation2Decrease=0,0,0,0;
+
+    for i in range(1,1000):
+        constrains = np.array([point1[2]+i, point2[2]])
+        intersectPoint = np.linalg.solve(cof, constrains)
+        tag = isSatisfyAllEquation(equationList,intersectPoint)
+        #print(tag)
+        if tag==False:
+            print(i)
+            optimalEquation1Increase =i-1
+            break
+
+    for i in range(1,1000):
+        constrains = np.array([point1[2], point2[2]+i])
+        intersectPoint = np.linalg.solve(cof, constrains)
+        tag = isSatisfyAllEquation(equationList,intersectPoint)
+        #print(tag)
+        if tag==False:
+            print(i)
+            optimalEquation2Increase = i-1
+            break
+
+    for i in range(1,1000):
+        constrains = np.array([point1[2]-i, point2[2]])
+        intersectPoint = np.linalg.solve(cof, constrains)
+        tag = isSatisfyAllEquation(equationList,intersectPoint)
+        #print(tag)
+        if tag==False:
+            print(i)
+            optimalEquation1Decrease=i-1
+            break
+
+    for i in range(1,1000):
+        constrains = np.array([point1[2], point2[2]-i])
+        intersectPoint = np.linalg.solve(cof, constrains)
+        tag = isSatisfyAllEquation(equationList,intersectPoint)
+        #print(tag)
+        if tag==False:
+            print(i)
+            optimalEquation2Decrease = i-1
+            break
+
+    print(intersectPoint)
+    RangeOfFeasibility={
+        'optimalEquation1Increase': optimalEquation1Increase,
+        'optimalEquation1Decrease' : optimalEquation1Decrease,
+        'optimalEquation2Increase': optimalEquation2Increase,
+        'optimalEquation2Decrease': optimalEquation2Decrease
+    }
+    return RangeOfFeasibility
 
 def main(ObjectiveFunction, ConstraintList):
     # [START solver]
@@ -118,11 +279,13 @@ def main(ObjectiveFunction, ConstraintList):
     constr_input = ConstraintList
     constr_list = constr_input.split(",")
     for constr in constr_list:
-        constr = getConstrExpr(constr)
+        constr,rangeconstr = getConstrExpr(constr)
         constr = eval(constr)
         solver.Add(constr)
+        range_constraint_list.append(rangeconstr)
 
     ans_map['Constraints'] = constr_input
+    print("RANGE CONSTR LIST: ",range_constraint_list)
 
     # x >=0
     #solver.Add(x[1] >= 0.0)
@@ -156,13 +319,11 @@ def main(ObjectiveFunction, ConstraintList):
         print('Objective value =', solver.Objective().Value())
         solution['ObjectiveValue'] = solver.Objective().Value()
         
-        #generic kora baki
-        print('x1 =', x[1].solution_value())
-        #x1_sol_val = 'x1 ='+ str(x[1].solution_value())
-        solution['x1_sol_val'] = x[1].solution_value()
-
-        print('x2 =', x[2].solution_value())
-        solution['x2_sol_val'] = x[2].solution_value()
+        #generic 
+        for var in range(1, num_of_var+1):
+            print('x[',var,'] = ', x[var].solution_value())
+            key = 'x'+str(var)+'_sol_val'
+            solution[key] = x[var].solution_value()
 
         print("offset ", solver.Objective().BestBound())
         
@@ -177,6 +338,8 @@ def main(ObjectiveFunction, ConstraintList):
     # x=round(x.solution_value())
     constraint_compute=solver.ComputeConstraintActivities()
 
+    #Slack: RHS – LHS value in a  ≤ constraint
+    #The amount of resource that is not used
     compute_slack=[]
     for i in range(len(solver.constraints())):
         # print("poss ", solver.constraints()[i].ub()-round(constraint_compute[i]))
@@ -187,30 +350,84 @@ def main(ObjectiveFunction, ConstraintList):
     # [START advanced]
     print('\nAdvanced usage:')
     print('Problem solved in %f milliseconds' % solver.wall_time())
+    ans_map['solving_time']=solver.wall_time()
     print('Problem solved in %d iterations' % solver.iterations())
+    ans_map['iterations']=solver.iterations()
     print('Problem solved in %d branch-and-bound nodes' % solver.nodes())
+    ans_map['branch_bound_nodes']=solver.nodes()
     # [END advanced]
 
     ############# slack/surplus  --------------------------------
 
+    #print("compute slack: ",compute_slack)
+    track_index = 1
+    
+    constraint_details={}
+    binding_constraint_list = []
+    non_binding_constraint_list = []
+       
+    build_constraint_list = []
     for val in compute_slack:
-        # print(val['constraint'])
+        print("*********G: ")
+        build_constraint = ""
+        for var in range(1, num_of_var+1):
+            coefficient = int(val['constraint'].GetCoefficient(x[var]))
+            if coefficient!=1:
+                build_constraint += str(coefficient)+"x"+str(var)
+            else:
+                build_constraint += "x"+str(var)
+                
+            if var!=num_of_var:
+                build_constraint+=" + "
+        
+        print(build_constraint)
+        build_constraint_list.append(build_constraint)
+            
+        
+        constraint_map={}
         if val['slack'] ==0.0:
-            print("This constraint is a binding constraint")
-            print("the constraint ", val['constraint'].GetCoefficient(x[1]),"* x1 +",val['constraint'].GetCoefficient(x[2]) ,"* x2 has a direct impact on the optimal solution")
+            print("This constraint ", str(build_constraint)," is a binding constraint & has a direct impact on the optimal solution")
+            constraint_map['binding'] = 1
+            #binding_constraint_list.append(build_constraint)
+            #get_constraint = val['constraint'].GetCoefficient(x[1]),"* x1
+            #shadow price
             print("shadow price is ", val['constraint'].dual_value())
+            constraint_map['shadow_price'] = val['constraint'].dual_value()
         else:
-            print("This constraint is a non-binding constraint", val['constraint'])
+            print("This constraint ",str(build_constraint)," is a non-binding constraint & has no direct impact on the optimal solution")
+            constraint_map['binding'] = 0
+            #dual
             print("dual ", val['constraint'].dual_value())
-            print("the constraint ", val['constraint'].GetCoefficient(x[1]),"* x1 +",val['constraint'].GetCoefficient(x[2]) ,"* x2 has no direct impact on the optimal solution")
+            constraint_map['dual']=val['constraint'].dual_value()
+        
             if  val['slack'] >0.0:
                 print("The total limit is not used yet. It had total limit of", val['constraint'].ub(), "but used only",  val['constraint'].ub()-val['slack'])
+                #ans_map[]
+                constraint_map['total_limit']=val['constraint'].ub()
+                constraint_map['used']=val['constraint'].ub()-val['slack']
             else:
                 print("The total limit is not used yet. It had total limit of", val['constraint'].ub(), "but used only",  val['constraint'].ub()+val['slack'])
-
-    print("the reduced cost of x1 is", x[1].reduced_cost(), x[2].basis_status())
+        
+        constraint_details[build_constraint]=constraint_map
+        
+    #print("the reduced cost of x1 is", x[1].reduced_cost(), x[2].basis_status())
     #print("the reduced cost of y is", y.reduced_cost(), x.basis_status())
-
+    ans_map['constraint_details']=constraint_details
+    
+    #range_constraint_list
+    arg_optimality = []
+    for key in ans_map['constraint_details']:
+        if constraint_details[key]['binding']==1:
+            for rcl in range(len(build_constraint_list)):
+                if build_constraint_list[rcl]==key:
+                    arg_optimality.append(range_constraint_list[rcl])
+    
+    arg_optimality.append(splitted_command[1])
+                    
+    print("arg optimality: ",arg_optimality)
+            
+    #print(getRangeOfOptimality(arg_optimality))
+  
     return ans_map
 
 def checkSign(val):
@@ -257,6 +474,7 @@ def gfg(ans=""):
        constr = request.form.get("constr") 
        #ans = demo_main(objfunc+constr) 
        ans = main(objfunc, constr)
+       ans=json.dumps(ans, indent=1)
        #return ans
     return render_template(
         "form.html",
