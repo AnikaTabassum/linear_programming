@@ -90,48 +90,109 @@ def getExpr(splitted_objective_function,num_of_var):
     
     return obj_func
 
-def getRangeOfOptimality(equation1,equation2,optimalEquation):
-    slope1 = [float(i) for i in re.split('[xy]', equation1)]
-    print((slope1[0]),slope1[1])
-    slope2 = [float(i) for i in re.split('[xy]', equation2)]
-    print((slope2[0]),slope2[1])
-    optimalEquation+='-0'
-    optimalSlope = [float(i) for i in re.split('[xy]', optimalEquation)]
-    print((optimalSlope[0]),optimalSlope[1])
-    slope1 = (-slope1[0]/slope1[1])
-    slope2 = (-slope2[0] / slope2[1])
-    optimalSlopefinal = (-optimalSlope[0]/optimalSlope[1])
-    #print(slope1,slope2,optimalSlope)
-    maximumForCx,minimumForCx = 0,0
-    maximumForCy, minimumForCy =0,0
+def getRangeOfOptimality(equationList,optimalEquation):
+    RangeOfOptimality=[]
+    optimalEquation =optimalEquation.replace('x1','x')
+    optimalEquation =optimalEquation.replace('x2','y')
+    for i in range(len(equationList)):
+        #print(realEquationList[i][0],realEquationList[i][0].rfind('x1'))
+        if(equationList[i][0].rfind('x2')==-1):
+            equationList[i][0]+='+0x2'
 
-    if(slope1>slope2):
-        temp = slope1
-        slope1 = slope2
-        slope2 = temp
+        if (equationList[i][0].rfind('x1') == -1):
+            equationList[i][0] += '+0x1'
+        
+        if(equationList[i][1].rfind('x2')==-1):
+            equationList[i][1]+='+0x2'
 
-    if(optimalSlopefinal<0):
-        maximumForCx = (-slope1)*optimalSlope[1]
-        minimumForCx = (-slope2)*optimalSlope[1]
-        maximumForCy = optimalSlope[0]/(-slope2)
-        minimumForCy = optimalSlope[0]/(-slope1)
-        print('range variable x [',minimumForCx,maximumForCx,']')
-        print('range variable y [', minimumForCy, maximumForCy, ']')
-    else:
-        minimumForCx = (slope1) * optimalSlope[1]
-        maximumForCx = (slope2) * optimalSlope[1]
-        minimumForCy = optimalSlope[0] / (slope2)
-        maximumForCy = optimalSlope[0] / (slope1)
-        print('range variable x [', minimumForCx, maximumForCx, ']')
-        print('range variable y [', minimumForCy, maximumForCy, ']')
+        if (equationList[i][1].rfind('x1') == -1):
+            equationList[i][1] += '+0x1'
 
-    RangeOfOptimality = {
-        'minValX': minimumForCx,
-        'maxValX': maximumForCx,
-        'minValY': minimumForCy,
-        'maxValY': maximumForCy,
-    }
+    for i in range(len(equationList)):
+        if len(re.split('[-+]', equationList[i][0]))<3:
+            equationList[i][0]+='-0'
+
+        elemnt  = re.split('[-+]', equationList[i][0])
+
+        for ii in range(0,len(elemnt)):
+            print(elemnt[ii])
+            if(elemnt[ii]=='x1'):
+                realEquationList[i][0] = equationList[i][0].replace('x1', '1x1')
+            if (elemnt[ii] == 'x2'):
+                equationList[i][0] = equationList[i][0].replace('x2','1x2')
+                #print("hey",equationList[i][0])
+
+
+        equationList[i][0] = equationList[i][0].replace('x2','y')
+        equationList[i][0] = equationList[i][0].replace('x1', 'x')
+        
+        if len(re.split('[-+]', equationList[i][1]))<3:
+            equationList[i][1]+='-0'
+
+        elemnt  = re.split('[-+]', equationList[i][1])
+
+        for ii in range(0,len(elemnt)):
+            #print(elemnt[ii])
+            if(elemnt[ii]=='x1'):
+                realEquationList[i][1] = equationList[i][1].replace('x1', '1x1')
+            if (elemnt[ii] == 'x2'):
+                equationList[i][1] = equationList[i][1].replace('x2','1x2')
+                #print("hey",equationList[i][1])
+
+
+        equationList[i][1] = equationList[i][1].replace('x2','y')
+        equationList[i][1] = equationList[i][1].replace('x1', 'x')
+        
+    optimalEquation += '-0'
+    
+    for i in range(len(equationList)):
+        tempEquationList = equationList.copy()
+        equation1 = tempEquationList[i][0].replace('x2','y')
+        equation2 = tempEquationList[i][1].replace('x2','y')
+        print(equation1,equation2)
+        slope1 = [float(i) for i in re.split('[xy]', equation1)]
+        print((slope1[0]),slope1[1])
+        slope2 = [float(i) for i in re.split('[xy]', equation2)]
+        print((slope2[0]),slope2[1])
+
+        optimalSlope = [float(i) for i in re.split('[xy]', optimalEquation)]
+        print((optimalSlope[0]),optimalSlope[1])
+        slope1 = (-slope1[0]/slope1[1])
+        slope2 = (-slope2[0] / slope2[1])
+        optimalSlopefinal = (-optimalSlope[0]/optimalSlope[1])
+        #print(slope1,slope2,optimalSlope)
+        maximumForCx,minimumForCx = 0,0
+        maximumForCy, minimumForCy =0,0
+
+        if(slope1>slope2):
+            temp = slope1
+            slope1 = slope2
+            slope2 = temp
+
+        if(optimalSlopefinal<0):
+            maximumForCx = (-slope1)*optimalSlope[1]
+            minimumForCx = (-slope2)*optimalSlope[1]
+            maximumForCy = optimalSlope[0]/(-slope2)
+            minimumForCy = optimalSlope[0]/(-slope1)
+            print('range variable x [',minimumForCx,maximumForCx,']')
+            print('range variable y [', minimumForCy, maximumForCy, ']')
+        else:
+            minimumForCx = (slope1) * optimalSlope[1]
+            maximumForCx = (slope2) * optimalSlope[1]
+            minimumForCy = optimalSlope[0] / (slope2)
+            maximumForCy = optimalSlope[0] / (slope1)
+            print('range variable x [', minimumForCx, maximumForCx, ']')
+            print('range variable y [', minimumForCy, maximumForCy, ']')
+
+        RangeOfOptimality.append({
+            'minValX': minimumForCx,
+            'maxValX': maximumForCx,
+            'minValY': minimumForCy,
+            'maxValY': maximumForCy,
+        })
+
     return RangeOfOptimality
+
 
 def isSatisfyAllEquation(equationList,intersectPoint):
     tag = False
@@ -158,82 +219,118 @@ def isSatisfyAllEquation(equationList,intersectPoint):
 
 
     return tag
-
-def getRangeOfFeasibility(equationList,equation1,equation2):
-
+def getRangeOfFeasibility(realEquationList,bindingEquationList):
+    
     # print(equationList[0][0])
-    # # greater than constrains  == 0
-    # # less than constrains  == 1
+    # # greater than constrains  == 1
+    # # less than constrains  == 0
     # print(equation1)
+    RangeOfFeasibility=[]
+    for i in range(len(realEquationList)):
+        #print(realEquationList[i][0],realEquationList[i][0].rfind('x1'))
+        if(realEquationList[i][0].rfind('x2')==-1):
+            realEquationList[i][0]+='+0x2'
 
-    finfIndexList=[]
-    for i in range(0,len(equationList)):
-        if(equationList[i][0]==equation1 or equationList[i][0]==equation2 ):
-            finfIndexList.append(i)
-    #print(finfIndexList)
+        if (realEquationList[i][0].rfind('x1') == -1):
+            realEquationList[i][0] += '+0x1'
 
-    del equationList[finfIndexList[0]]
-    del equationList[finfIndexList[1]-1]
+    for i in range(len(realEquationList)):
+        if len(re.split('[-+]', realEquationList[i][0]))<3:
+            realEquationList[i][0]+='-0'
 
-    #print(equationList)
 
-    point1 = [float(i) for i in re.split('[xy]', equation1)]
-    point1[2] = - point1[2]
-    #print(point1)
-    point2 = [float(i) for i in re.split('[xy]', equation2)]
-    point2[2] = - point2[2]
-    #print(point2)
-    cof = np.array([[point1[0], point1[1]], [point2[0], point2[1]]])
 
-    optimalEquation1Increase,optimalEquation1Decrease,optimalEquation2Increase,optimalEquation2Decrease=0,0,0,0;
 
-    for i in range(1,1000):
-        constrains = np.array([point1[2]+i, point2[2]])
-        intersectPoint = np.linalg.solve(cof, constrains)
-        tag = isSatisfyAllEquation(equationList,intersectPoint)
-        #print(tag)
-        if tag==False:
-            print(i)
-            optimalEquation1Increase =i-1
-            break
+        elemnt  = re.split('[-+]', realEquationList[i][0])
 
-    for i in range(1,1000):
-        constrains = np.array([point1[2], point2[2]+i])
-        intersectPoint = np.linalg.solve(cof, constrains)
-        tag = isSatisfyAllEquation(equationList,intersectPoint)
-        #print(tag)
-        if tag==False:
-            print(i)
-            optimalEquation2Increase = i-1
-            break
+        for ii in range(0,len(elemnt)):
+            #print(elemnt[ii])
+            if(elemnt[ii]=='x1'):
+                realEquationList[i][0] = realEquationList[i][0].replace('x1', '1x1')
+            if (elemnt[ii] == 'x2'):
+                realEquationList[i][0] = realEquationList[i][0].replace('x2','1x2')
+                #print(realEquationList[i][0])
 
-    for i in range(1,1000):
-        constrains = np.array([point1[2]-i, point2[2]])
-        intersectPoint = np.linalg.solve(cof, constrains)
-        tag = isSatisfyAllEquation(equationList,intersectPoint)
-        #print(tag)
-        if tag==False:
-            print(i)
-            optimalEquation1Decrease=i-1
-            break
 
-    for i in range(1,1000):
-        constrains = np.array([point1[2], point2[2]-i])
-        intersectPoint = np.linalg.solve(cof, constrains)
-        tag = isSatisfyAllEquation(equationList,intersectPoint)
-        #print(tag)
-        if tag==False:
-            print(i)
-            optimalEquation2Decrease = i-1
-            break
+        realEquationList[i][0] = realEquationList[i][0].replace('x2','y')
+        realEquationList[i][0] = realEquationList[i][0].replace('x1', 'x')
 
-    print(intersectPoint)
-    RangeOfFeasibility={
-        'optimalEquation1Increase': optimalEquation1Increase,
-        'optimalEquation1Decrease' : optimalEquation1Decrease,
-        'optimalEquation2Increase': optimalEquation2Increase,
-        'optimalEquation2Decrease': optimalEquation2Decrease
-    }
+    #print(realEquationList,len(bindingEquationList))
+    for j in range(len(bindingEquationList)):
+        equationList = realEquationList.copy()
+        tempbindingEquationList = bindingEquationList.copy()
+        equation1 = tempbindingEquationList[j][0].replace('x2','y')
+        equation2 = tempbindingEquationList[j][1].replace('x2','y')
+
+        #print(equationList,j)
+        #print(equation1,equation2)
+        finfIndexList=[]
+        for ii in range(0,len(equationList)):
+            if equationList[ii][0]==equation1 or equationList[ii][0]==equation2:
+                finfIndexList.append(ii)
+        #print(finfIndexList)
+
+        del equationList[finfIndexList[0]]
+        del equationList[finfIndexList[1]-1]
+
+        #print(equationList)
+
+        point1 = [float(i) for i in re.split('[xy]', equation1)]
+        point1[2] = - point1[2]
+        #print(point1)
+        point2 = [float(i) for i in re.split('[xy]', equation2)]
+        point2[2] = - point2[2]
+        #print(point2)
+        cof = np.array([[point1[0], point1[1]], [point2[0], point2[1]]])
+
+        optimalEquation1Increase,optimalEquation1Decrease,optimalEquation2Increase,optimalEquation2Decrease=0,0,0,0;
+        intersectPoint=None
+        for i in range(1,1000):
+            constrains = np.array([point1[2]+i, point2[2]])
+            intersectPoint = np.linalg.solve(cof, constrains)
+            tag = isSatisfyAllEquation(equationList,intersectPoint)
+            #print(tag)
+            if tag==False:
+                #print(i)
+                optimalEquation1Increase =i-1
+                break
+
+        for i in range(1,1000):
+            constrains = np.array([point1[2], point2[2]+i])
+            intersectPoint = np.linalg.solve(cof, constrains)
+            tag = isSatisfyAllEquation(equationList,intersectPoint)
+            #print(tag)
+            if tag==False:
+                #print(i)
+                optimalEquation2Increase = i-1
+                break
+
+        for i in range(1,1000):
+            constrains = np.array([point1[2]-i, point2[2]])
+            intersectPoint = np.linalg.solve(cof, constrains)
+            tag = isSatisfyAllEquation(equationList,intersectPoint)
+            #print(tag)
+            if tag==False:
+                #print(i)
+                optimalEquation1Decrease=i
+                break
+
+        for i in range(1,1000):
+            constrains = np.array([point1[2], point2[2]-i])
+            intersectPoint = np.linalg.solve(cof, constrains)
+            tag = isSatisfyAllEquation(equationList,intersectPoint)
+            #print(tag)
+            if tag==False:
+                #print(i)
+                optimalEquation2Decrease = i
+                break
+
+        RangeOfFeasibility.append({
+            'optimalEquation1Increase': optimalEquation1Increase,
+            'optimalEquation1Decrease' : optimalEquation1Decrease,
+            'optimalEquation2Increase': optimalEquation2Increase,
+            'optimalEquation2Decrease': optimalEquation2Decrease
+        })
     return RangeOfFeasibility
 
 def main(ObjectiveFunction, ConstraintList):
@@ -268,6 +365,18 @@ def main(ObjectiveFunction, ConstraintList):
     x = {i: solver.NumVar(0.0, infinity, f'x{i}') for i in range(1, num_of_var+1)}
 
     print('Number of variables =', solver.NumVariables())
+    if(solver.NumVariables()==2):
+        print("Range Of Optimality")
+        optimalityRange = getRangeOfOptimality([["3x1+4x2-2400","2x1+x2-1000"]],"8x1+5x2")
+        print(optimalityRange)
+        print()
+        ans_map['RangeOfOptimality']=optimalityRange
+        
+        print("Range Of Feasibility")
+        equationList=[["2x1+x2-1000",0],["3x1+4x2-2400",0],["x1+x2-700",0],["x1-x2-350",0],["x1",1],["x2",1]]
+        feasibilityRange = getRangeOfFeasibility(equationList,[["3x+4x2-2400","2x+1x2-1000"]])
+        print(feasibilityRange)
+        ans_map['RangeOfFeasibility'] = feasibilityRange 
     ans_map['NumOfVar'] = solver.NumVariables()
     # [END variables]
 
@@ -425,7 +534,9 @@ def main(ObjectiveFunction, ConstraintList):
     arg_optimality.append(splitted_command[1])
                     
     print("arg optimality: ",arg_optimality)
+    print("arg optimality: ",arg_optimality)
             
+
     #print(getRangeOfOptimality(arg_optimality))
   
     return ans_map
@@ -479,4 +590,4 @@ def gfg(ans=""):
     return render_template(
         "form.html",
         result=ans
-    )  
+    ) 
