@@ -91,7 +91,9 @@ def getExpr(splitted_objective_function,num_of_var):
     return obj_func
 
 def getRangeOfOptimality(equationList,optimalEquation):
-    RangeOfOptimality=[]
+    
+    RangeOfOptimality = {}
+
     optimalEquation =optimalEquation.replace('x1','x')
     optimalEquation =optimalEquation.replace('x2','y')
     for i in range(len(equationList)):
@@ -174,22 +176,22 @@ def getRangeOfOptimality(equationList,optimalEquation):
             minimumForCx = (-slope2)*optimalSlope[1]
             maximumForCy = optimalSlope[0]/(-slope2)
             minimumForCy = optimalSlope[0]/(-slope1)
-            print('range variable x [',minimumForCx,maximumForCx,']')
-            print('range variable y [', minimumForCy, maximumForCy, ']')
+            print('range variable x1 [',minimumForCx,maximumForCx,']')
+            print('range variable x2 [', minimumForCy, maximumForCy, ']')
         else:
             minimumForCx = (slope1) * optimalSlope[1]
             maximumForCx = (slope2) * optimalSlope[1]
             minimumForCy = optimalSlope[0] / (slope2)
             maximumForCy = optimalSlope[0] / (slope1)
-            print('range variable x [', minimumForCx, maximumForCx, ']')
-            print('range variable y [', minimumForCy, maximumForCy, ']')
+            print('range variable x1 [', minimumForCx, maximumForCx, ']')
+            print('range variable x2 [', minimumForCy, maximumForCy, ']')
 
-        RangeOfOptimality.append({
-            'minValX': minimumForCx,
-            'maxValX': maximumForCx,
-            'minValY': minimumForCy,
-            'maxValY': maximumForCy,
-        })
+        RangeOfOptimality['minValX1'] = minimumForCx
+        RangeOfOptimality['maxValX1'] = maximumForCx
+        RangeOfOptimality['minValX2'] = minimumForCy
+        RangeOfOptimality['maxValX2'] = maximumForCy
+        
+        #RangeOfOptimality.append(rangeMap)
 
     return RangeOfOptimality
 
@@ -219,13 +221,16 @@ def isSatisfyAllEquation(equationList,intersectPoint):
 
 
     return tag
+
 def getRangeOfFeasibility(realEquationList,bindingEquationList):
     
     # print(equationList[0][0])
     # # greater than constrains  == 1
     # # less than constrains  == 0
     # print(equation1)
-    RangeOfFeasibility=[]
+    
+    RangeOfFeasibility = {}
+
     for i in range(len(realEquationList)):
         #print(realEquationList[i][0],realEquationList[i][0].rfind('x1'))
         if(realEquationList[i][0].rfind('x2')==-1):
@@ -325,12 +330,11 @@ def getRangeOfFeasibility(realEquationList,bindingEquationList):
                 optimalEquation2Decrease = i
                 break
 
-        RangeOfFeasibility.append({
-            'optimalEquation1Increase': optimalEquation1Increase,
-            'optimalEquation1Decrease' : optimalEquation1Decrease,
-            'optimalEquation2Increase': optimalEquation2Increase,
-            'optimalEquation2Decrease': optimalEquation2Decrease
-        })
+        RangeOfFeasibility['optimalEquation1Increase'] = optimalEquation1Increase
+        RangeOfFeasibility['optimalEquation1Decrease'] = optimalEquation1Decrease
+        RangeOfFeasibility['optimalEquation2Increase'] = optimalEquation2Increase
+        RangeOfFeasibility['optimalEquation2Decrease'] = optimalEquation2Decrease
+        
     return RangeOfFeasibility
 
 def main(ObjectiveFunction, ConstraintList):
@@ -349,7 +353,7 @@ def main(ObjectiveFunction, ConstraintList):
     splitted_command = command.split()
 
     ans_map['Objective_Function'] = command
-    ans_map["obj_func_exp"] = "Need to find the optimal solution for this."
+    ans_map["obj_func_exp"] = " Need to find the optimal solution for this."
 
     todo = splitted_command[0]
 
@@ -371,7 +375,12 @@ def main(ObjectiveFunction, ConstraintList):
         optimalityRange = getRangeOfOptimality([["3x1+4x2-2400","2x1+x2-1000"]],"8x1+5x2")
         print(optimalityRange)
         print()
-        ans_map['RangeOfOptimality']=optimalityRange
+
+        ans_map['RangeOfOptimality_minValX1']=optimalityRange['minValX1']
+        ans_map['RangeOfOptimality_maxValX1']=optimalityRange['maxValX1']
+        ans_map['RangeOfOptimality_minValX2']=optimalityRange['minValX2']
+        ans_map['RangeOfOptimality_maxValX2']=optimalityRange['maxValX2']
+
         ans_map["RangeOfOptimality_exp"] = "The coeffiecient of the decision variables can be changed between this range keeping the optimal value unchanged."
 
 
@@ -379,7 +388,12 @@ def main(ObjectiveFunction, ConstraintList):
         equationList=[["2x1+x2-1000",0],["3x1+4x2-2400",0],["x1+x2-700",0],["x1-x2-350",0],["x1",1],["x2",1]]
         feasibilityRange = getRangeOfFeasibility(equationList,[["3x+4x2-2400","2x+1x2-1000"]])
         print(feasibilityRange)
-        ans_map['RangeOfFeasibility'] = feasibilityRange 
+        
+        ans_map['RangeOfFeasibility_optimalEquation1Increase'] = feasibilityRange['optimalEquation1Increase']
+        ans_map['RangeOfFeasibility_optimalEquation1Decrease'] = feasibilityRange['optimalEquation1Decrease']
+        ans_map['RangeOfFeasibility_optimalEquation2Increase'] = feasibilityRange['optimalEquation2Increase']
+        ans_map['RangeOfFeasibility_optimalEquation2Decrease'] = feasibilityRange['optimalEquation2Decrease']
+
         ans_map['RangeOfFeasibility_exp'] = "Determines the change range of the RHS of a constraint."
     
     ans_map['NumOfVar'] = solver.NumVariables()
@@ -399,7 +413,9 @@ def main(ObjectiveFunction, ConstraintList):
         solver.Add(constr)
         range_constraint_list.append(rangeconstr)
 
-    ans_map['Constraints'] = constr_input
+    new_constr_list = ConstraintList.replace(",",", ")
+
+    ans_map['Constraints'] = new_constr_list
     
     print("RANGE CONSTR LIST: ",range_constraint_list)
 
@@ -431,29 +447,31 @@ def main(ObjectiveFunction, ConstraintList):
     solution = {}
     # [START print_solution]
     if status == pywraplp.Solver.OPTIMAL:
-        solution['exists']= "yes"
+        ans_map['solution_exists']= "yes"
         print('Solution:')
         print('Objective value =', solver.Objective().Value())
-        solution['ObjectiveValue'] = solver.Objective().Value()
-        solution['ObjectiveValue_exp'] = "This is the optimal solution."
+        ans_map['ObjectiveValue'] = solver.Objective().Value()
+        ans_map['ObjectiveValue_exp'] = "This is the optimal solution."
 
         
         #generic 
+        optimal_value_list = []
         for var in range(1, num_of_var+1):
             print('x[',var,'] = ', x[var].solution_value())
             key = 'x'+str(var)+'_sol_val'
             key_exp = str(key)+"_exp"
-            solution[key] = x[var].solution_value()
-            solution[key_exp] = "The value of this decision variable in the optimal point."
-
+            ans_map[key] = x[var].solution_value()
+            ans_map[key_exp] = "The value of this decision variable in the optimal point."
+            optimal_value_list.append(x[var].solution_value())
 
         print("offset ", solver.Objective().BestBound())
+        ans_map["opt_val_list"] = optimal_value_list
         
     else:
         print('The problem does not have an optimal solution.')
-        solution['exists']="no"
+        ans_map['solution_exists']="no"
 
-    ans_map['solution'] = solution
+    #ans_map['solution'] = solution
 
     # [END print_solution]
     print("cons",solver.constraints()[2].ub())
@@ -489,6 +507,9 @@ def main(ObjectiveFunction, ConstraintList):
     non_binding_constraint_list = []
        
     build_constraint_list = []
+
+    constraint_details_str = ""
+
     for val in compute_slack:
         print("*********G: ")
         build_constraint = ""
@@ -504,23 +525,34 @@ def main(ObjectiveFunction, ConstraintList):
         
         print(build_constraint)
         build_constraint_list.append(build_constraint)
-            
-        
+
         constraint_map={}
+
         if val['slack'] ==0.0:
-            constraint_exp = "This constraint "+str(build_constraint)+" is a binding constraint & has a direct impact on the optimal solution"
+            constraint_details_str = constraint_details_str + "\n\n\n"
+            constraint_exp = str(build_constraint)+" is a binding constraint & has a direct impact on the optimal solution."
+            constraint_details_str = constraint_details_str + constraint_exp 
             print(constraint_exp)
+
             constraint_map['binding'] = 1
             constraint_map['constraint_exp'] = constraint_exp
             #binding_constraint_list.append(build_constraint)
             #get_constraint = val['constraint'].GetCoefficient(x[1]),"* x1
-            shadow_price_exp = "shadow price is "+ str(val['constraint'].dual_value())
+            shadow_price_exp = " Shadow price for this constraint is "+ str(val['constraint'].dual_value())
             print(shadow_price_exp)
+
+            constraint_details_str = constraint_details_str + shadow_price_exp
+
             constraint_map['shadow_price'] = val['constraint'].dual_value()
             constraint_map['shadow_price_exp'] = shadow_price_exp
         else:
-            constraint_exp = "This constraint "+str(build_constraint)+" is a non-binding constraint & has no direct impact on the optimal solution"
+            
+            constraint_details_str = constraint_details_str + ". "
+
+            constraint_exp = str(build_constraint)+" is a non-binding constraint & has no direct impact on the optimal solution. "
             print(constraint_exp)
+            constraint_details_str = constraint_details_str + constraint_exp
+
             constraint_map['binding'] = 0
             dual_exp = "dual "+str(val['constraint'].dual_value())
             print(dual_exp)
@@ -528,15 +560,18 @@ def main(ObjectiveFunction, ConstraintList):
             constraint_map['dual_exp']=dual_exp
         
             if  val['slack'] >0.0:
-                slack_exp = "The total limit is not used yet. It had total limit of "+ str(val['constraint'].ub()) +" but used only " + str(val['constraint'].ub()-val['slack'])
+                slack_exp = " The total limit is not used yet. It had total limit of "+ str(val['constraint'].ub()) +" but used only " + str(val['constraint'].ub()-val['slack'])
                 print(slack_exp)
+                constraint_details_str = constraint_details_str + slack_exp
+
                 #ans_map[]
                 constraint_map['total_limit']=val['constraint'].ub()
                 constraint_map['used']=val['constraint'].ub()-val['slack']
                 constraint_map['slack_exp'] = slack_exp
             else:
-                slack_exp = "The total limit is not used yet. It had total limit of "+ str(val['constraint'].ub())+ " but used only "+str(val['constraint'].ub()+val['slack'])
+                slack_exp = " The total limit is not used yet. It had total limit of "+ str(val['constraint'].ub())+ " but used only "+str(val['constraint'].ub()+val['slack'])
                 print(slack_exp)
+                constraint_details_str = constraint_details_str + slack_exp
                 constraint_map['slack_exp'] = slack_exp
         
         constraint_details[build_constraint]=constraint_map
@@ -544,8 +579,8 @@ def main(ObjectiveFunction, ConstraintList):
     #print("the reduced cost of x1 is", x[1].reduced_cost(), x[2].basis_status())
     #print("the reduced cost of y is", y.reduced_cost(), x.basis_status())
     ans_map['constraint_details']=constraint_details
+    ans_map['constraint_details_str'] = constraint_details_str
     
-    #range_constraint_list
     arg_optimality = []
     for key in ans_map['constraint_details']:
         if constraint_details[key]['binding']==1:
@@ -607,7 +642,7 @@ def gfg(ans=""):
        constr = request.form.get("constr") 
        #ans = demo_main(objfunc+constr) 
        ans = main(objfunc, constr)
-       ans=json.dumps(ans, indent=1)
+       #ans=json.dumps(ans, indent=1)
        #return ans
     return render_template(
         "form.html",

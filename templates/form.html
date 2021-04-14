@@ -1,7 +1,136 @@
-<form action="{{ url_for("gfg")}}" method="post"> 
-<label for="objective_function">Enter Objective Function: (Example Format: 8x1+5x2)</label> 
-<input type="text" id="objective_function" name="objfunc" placeholder="objective_function"> 
+<!DOCTYPE html>
+<html>
 
-<label for="constraints">Enter Constraints: (Example Format: 2x1+x2<=1000,3x1+4x2<=2400,x1+x2<=700,x1-x2<=350,x1>=0,x2>=0) </label> 
-<input type="text" id="constraints" name="constr" placeholder="constraints"> 
-<button type="submit">Solve</button> 
+    <head>
+        <meta charset="utf-8" />
+        <title>LP Solver</title>
+        <style>
+            table {
+                font-family: Georgia, 'Times New Roman', Times, serif;
+                border-collapse: collapse;
+                width: 80%;
+                padding: 10px;
+            }
+
+            tr:hover {
+                background-color:#3489f8;
+            }
+
+            td {
+                border: 1px solid #dddddd;
+                text-align: left;
+            }
+
+            th {
+                border: 1px solid #dddddd;
+                text-align: center;
+            }
+
+            #wholeBody{
+                margin: 80px;
+            }
+
+            #resultTable{
+                margin-top: 20px;
+            }
+         
+        </style>
+        
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='site.css')}}" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/jquery.dataTables.min.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+
+        <div id="wholeBody">
+            <form action="{{ url_for("gfg")}}" method="post"> 
+            
+                <!--<label for="objective_function">Enter Objective Function: (Example Format: 8x1+5x2)</label> 
+                <input type="text" id="objective_function" name="objfunc" placeholder="objective_function"> 
+                
+                <label for="constraints">Enter Constraints: (Example Format: 2x1+x2<=1000,3x1+4x2<=2400,x1+x2<=700,x1-x2<=350,x1>=0,x2>=0) </label> 
+                <input type="text" id="constraints" name="constr" placeholder="constraints">-->
+                
+                <div class="form-group">
+                    <label for="objective_function">Enter Objective Function: (Example Format: 8x1+5x2)</label>
+                    <input type="text" class="form-control" id="objective_function" placeholder="Objective Function" name="objfunc">
+                </div>
+        
+                <div class="form-group">
+                    <label for="constraints">Enter Constraints: (Example Format: 2x1+x2<=1000,3x1+4x2<=2400,x1+x2<=700,x1-x2<=350,x1>=0,x2>=0)</label>
+                    <input type="text" class="form-control" id="constraints" placeholder="Constraints" name="constr">
+                </div>
+        
+                <button type="submit" class="btn btn-primary">Solve</button> </form> 
+                
+
+                <table class = "table table-hover" id="resultTable">
+                    <tr>
+                    <th>Result</th>
+                    </tr>
+
+                    <tr>
+                        <td>Objective Function : {{result['Objective_Function']}} <br> {{result['obj_func_exp']}}
+                        <br>{{result['NumOfVar_exp']}} <br>
+
+                        The optimal solution for this function is {{result['ObjectiveValue']}} <br>
+                        The corresponding optimal values for each of the variables are {{result['opt_val_list']}}
+
+                        <br>{{result['Constraints_exp']}}
+                        <br>{{result['Constraints']}}
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Range of optimality for X1: 
+                            {{result['RangeOfOptimality_minValX1']}} to {{result['RangeOfOptimality_maxValX1']}} <br>
+                            Range of optimality for X2: 
+                            {{result['RangeOfOptimality_minValX2']}} to {{result['RangeOfOptimality_maxValX2']}}
+                            <br>
+                            {{result['RangeOfOptimality_exp']}} </td>
+                    </tr>
+
+                    <tr>
+                        <td>Range of feasibility : {{result['RangeOfFeasibility_exp']}}<br>
+                            The binding constraint 1 can be increased 
+                            {{result['RangeOfFeasibility_optimalEquation1Increase']}} units and
+                             decreased {{result['RangeOfFeasibility_optimalEquation1Decrease']}} units <br>
+                            
+                            The binding constraint 2 can be increased 
+                            {{result['RangeOfFeasibility_optimalEquation2Increase']}} units and 
+                            decreased {{result['RangeOfFeasibility_optimalEquation2Decrease']}} units
+                            <br>
+                         </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            Constraint details <br>
+                            {{result['constraint_details_str']}}
+                        </td>
+                    </tr>
+
+
+                </table>
+                
+        </div>
+        
+    </body>
+
+    <script>
+       
+
+    
+    </script>
+    </html>
+
+
+    
+        
+    

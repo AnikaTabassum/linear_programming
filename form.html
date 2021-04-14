@@ -1,89 +1,227 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>LP Solver</title>
-        <style>
-            table {
-              font-family: arial, sans-serif;
-              border-collapse: collapse;
-              width: 100%;
-            }
-            
-            td, th {
-              border: 1px solid #dddddd;
-              text-align: left;
-              padding: 8px;
-            }
-            
-            tr:nth-child(even) {
-              background-color: #dddddd;
-            }
-            </style>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='site.css')}}" />
-    </head>
-    <body>
 
-    <form action="{{ url_for("gfg")}}" method="post"> 
-            <label for="objective_function">Enter Objective Function: <br></br></label> 
-            <input type="text" id="objective_function" name="objfunc" placeholder="Format: Maximize 8x1+5x2"> 
-            <br></br>  
-            <label for="constraints">Enter Constraints (Format: 2x1+x2<=1000,3x1+4x2<=2400): <br></br> </label> 
-            <input type="text" id="constraints" name="constr" placeholder="Constraint List"> 
-            <br></br>
-            <button type="submit">Solve</button> 
+<head>
+    <meta charset="utf-8" />
+    <title>LP Solver</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td,
+        th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+        #wholeBody{
+            margin-right: 80px;
+            margin-left: 80px;
+        }
+        #result{
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='site.css')}}" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/jquery.dataTables.min.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+</head>
+
+<body id="wholeBody">
+
+    <!--<form action="{{ url_for("gfg")}}" method="post">-->
+    <form>
+        <label for="objective_function">Enter Objective Function: <br></br></label>
+        <input type="text" id="objective_function" name="objfunc" placeholder="Format: Maximize 8x1+5x2">
+        <br></br>
+        <label for="constraints">Enter Constraints (Format: 2x1+x2<=1000,3x1+4x2<=2400): <br></br> </label>
+        <input type="text" id="constraints" name="constr" placeholder="Constraint List">
+        <br></br>
+        <button type="submit" onclick="buttonClick()">Solve</button>
     </form>
 
     <br></br>
-    <span>{{result.objective_function}}</span>
+    <!-- <span>{{result}}</span> -->
+    <!-- <span>{{result[RangeOfOptimality]}}</span> -->
+    <div>
 
-    <h2>Result</h2>
+    </div>
 
-    <table>
-        <tr>
-            <th>Field</th>
-            <th>Value</th>
-            <th>Explanation</th>
-        </tr>
-        <tr>
-            <td>Objective Function</td>
-            <td>
-            </td>
-            <td>Need to find the optimal solution for this</td>
-        </tr>
-        <tr>
-            <td>Centro comercial Moctezuma</td>
-            <td>Francisco Chang</td>
-            <td>Mexico</td>
-        </tr>
-        <tr>
-            <td>Ernst Handel</td>
-            <td>Roland Mendel</td>
-            <td>Austria</td>
-        </tr>
-        <tr>
-            <td>Island Trading</td>
-            <td>Helen Bennett</td>
-            <td>UK</td>
-        </tr>
-        <tr>
-            <td>Laughing Bacchus Winecellars</td>
-            <td>Yoshi Tannamuri</td>
-            <td>Canada</td>
-        </tr>
-        <tr>
-            <td>Magazzini Alimentari Riuniti</td>
-            <td>Giovanni Rovelli</td>
-            <td>Italy</td>
-        </tr>
+
+    <!-- {%for value in result %}
+        <h4>{{value}}</h4>
+    {% endfor %} 
+    <h4>{{result['Objective_Function']}}</h4>
+    <h3>{{result['RangeOfOptimality']}}</h3>
+
+    {% set another = result['RangeOfOptimality'] %}
+    <h3>{{optimalList[0]}}</h3> -->
+
+<!-- 
+    {% for value in optimalList %}
+    {{ value['minValX'] }}
+    {% endfor %}
+    {{ build_constraint_list_for[0] }} -->
+
+    <div id="result">
+
+        <h2>Result</h2>
+        <h3>Solution Value </h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Solution Value</td>
+                    <!--<td> {{ solution}}</td>-->
+                    <td>saaj</td>
+                </tr>
+                <tr>
+                    <td>Solution Point</td>
+                    <td> solutionPointX,solutionPointY</td>
+                </tr> 
+            </tbody>
         </table>
-            <!--{%if result %}
-                <span class="message">Hello there, {{ result }}!</span> 
-            {% else %}
-                <span class="message">Result nai!</span> 
-            {% endif %}-->
     
+    <!--
+        <h3>Range Of Optimality</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for value in optimalList %}
+                <tr>
+                    <td>Minimum Value of X</td>
+                    <td> value['minValX'] </td>
+                </tr>
+                <tr>
+                    <td>Maximum Value of X</td>
+                    <td> value['maxValX'] </td>
+                </tr>
+                <tr>
+                    <td>Minimum Value of Y</td>
+                    <td> value['minValY'] </td>
+                </tr>
+                <tr>
+                    <td>Maximum Value of Y</td>
+                    <td> value['maxValY'] </td>
+                </tr>
+                {% endfor %}      
+            </tbody>
+        </table>
+        
+    
+    
+        <h3>Range Of Feasibility</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for value in feasibleList %}
+                <tr>
+                    <td>Binding constraints of equation {{bindingList[0]}} can be increase </td>
+                    <td> {{ value['optimalEquation1Increase'] }}</td>
+                </tr>
+                <tr>
+                    <td>Binding constraints of equation {{bindingList[0]}} can be decrease</td>
+                    <td> {{ value['optimalEquation1Decrease'] }}</td>
+                </tr>
+                <tr>
+                    <td>Binding constraints of equation {{bindingList[1]}} can be increase</td>
+                    <td> {{ value['optimalEquation2Increase'] }}</td>
+                </tr>
+                <tr>
+                    <td>Binding constraints of equation {{bindingList[1]}} can be decrease</td>
+                    <td> {{ value['optimalEquation2Decrease'] }}</td>
+                </tr>
+                {% endfor %}      
+            </tbody>
+        </table>
+    
+    
+    
+        <table>
+            <thead>
+                <tr>
+                    <th>Equation Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index in range( build_constraint_details|length) %}
+                <tr>
+                    <td>{{  build_constraint_list_for[index] }}</td>
+                    <td>{{  build_constraint_details[index] }}</td>
+                </tr>      
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    
+        <table>
+            <thead>
+                <tr>
+                    <th>Binding Contraints Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index in range( bindingList|length) %}
+                <tr>
+                    <td>{{  bindingList[index] }}</td>
+                </tr>      
+                {% endfor %}
+            </tbody>
+        </table>-->
+    
+    </div>
 
-    </body>
+
+
+</body>
+
+
+<script>
+    console.log("saikat");
+    //console.log(build_constraint_list_for[0]);
+    // console.log({{result|tojson}})
+    // console.log({{result|tojson}}[0])
+
+    function buttonClick() {
+
+        var generateSummaryUrl  = "http://127.0.0.1:5000/";
+  //generateSummaryUrl=generateSummaryUrl+"?pathname=";
+  //generateSummaryUrl=generateSummaryUrl+pathname;
+  
+  AP.request(generateSummaryUrl, {
+    success: function(responseText){
+    var summaryList = JSON.parse(responseText);
+    alert(summaryList);
+
+    }
+  });
+       
+    }
+
+</script>
+
 </html>
-
