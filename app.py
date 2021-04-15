@@ -352,8 +352,9 @@ def main(ObjectiveFunction, ConstraintList):
     command = ObjectiveFunction
     splitted_command = command.split()
 
+    ans_map['Result'] = "Result"
     ans_map['Objective_Function'] = command
-    ans_map["obj_func_exp"] = " Need to find the optimal solution for this."
+    ans_map["obj_func_exp"] = " Need to find the optimal solution for the objective function: "
 
     todo = splitted_command[0]
 
@@ -381,6 +382,8 @@ def main(ObjectiveFunction, ConstraintList):
         ans_map['RangeOfOptimality_minValX2']=optimalityRange['minValX2']
         ans_map['RangeOfOptimality_maxValX2']=optimalityRange['maxValX2']
 
+        ans_map["roo_string_1"] = "Range of optimality for X1 is "+str(optimalityRange['minValX1'])+" to "+str(optimalityRange['maxValX1'])
+        ans_map["roo_string_2"] = "Range of optimality for X2 is "+str(optimalityRange['minValX2'])+" to "+str(optimalityRange['maxValX2'])
         ans_map["RangeOfOptimality_exp"] = "The coeffiecient of the decision variables can be changed between this range keeping the optimal value unchanged."
 
 
@@ -394,7 +397,9 @@ def main(ObjectiveFunction, ConstraintList):
         ans_map['RangeOfFeasibility_optimalEquation2Increase'] = feasibilityRange['optimalEquation2Increase']
         ans_map['RangeOfFeasibility_optimalEquation2Decrease'] = feasibilityRange['optimalEquation2Decrease']
 
-        ans_map['RangeOfFeasibility_exp'] = "Determines the change range of the RHS of a constraint."
+        ans_map['rof_string_1'] = "The binding constraint 1 can be increased "+str(feasibilityRange['optimalEquation1Increase'])+" units and decreased "+str(feasibilityRange['optimalEquation1Decrease'])+" units"
+        ans_map['rof_string_2'] = "The binding constraint 2 can be increased "+str(feasibilityRange['optimalEquation2Increase'])+" units and decreased "+str(feasibilityRange['optimalEquation2Decrease'])+" units"
+        ans_map['RangeOfFeasibility_exp'] = "Range of feasibility : Determines the change range of the RHS of a constraint."
     
     ans_map['NumOfVar'] = solver.NumVariables()
     ans_map['NumOfVar_exp'] = "There are total " + str(solver.NumVariables()) + " decision variables"
@@ -416,6 +421,7 @@ def main(ObjectiveFunction, ConstraintList):
     new_constr_list = ConstraintList.replace(",",", ")
 
     ans_map['Constraints'] = new_constr_list
+    ans_map['cdh'] = "Constraint Details"
     
     print("RANGE CONSTR LIST: ",range_constraint_list)
 
@@ -451,7 +457,7 @@ def main(ObjectiveFunction, ConstraintList):
         print('Solution:')
         print('Objective value =', solver.Objective().Value())
         ans_map['ObjectiveValue'] = solver.Objective().Value()
-        ans_map['ObjectiveValue_exp'] = "This is the optimal solution."
+        ans_map['ObjectiveValue_exp'] = "The optimal solution for this function is: "
 
         
         #generic 
@@ -466,6 +472,7 @@ def main(ObjectiveFunction, ConstraintList):
 
         print("offset ", solver.Objective().BestBound())
         ans_map["opt_val_list"] = optimal_value_list
+        ans_map['opt_val_exp'] = "The corresponding optimal values for each of the variables are: "
         
     else:
         print('The problem does not have an optimal solution.')

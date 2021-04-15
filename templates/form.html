@@ -5,6 +5,25 @@
         <meta charset="utf-8" />
         <title>LP Solver</title>
         <style>
+
+            #jumbotron-heading{
+                font-family: Georgia, 'Times New Roman', Times, serif;
+                background-color: rgb(27, 47, 65);
+                color: aliceblue;
+            }
+
+            #jumbotron-form{
+                font-family: Georgia, 'Times New Roman', Times, serif;
+                background-color: rgb(241, 244, 247);
+                color: rgb(27, 47, 65);
+            }
+
+            #jumbotron-table{
+                font-family: Georgia, 'Times New Roman', Times, serif;
+                background-color: rgb(245, 248, 250);
+                color: rgb(27, 47, 65);
+            }
+
             table {
                 font-family: Georgia, 'Times New Roman', Times, serif;
                 border-collapse: collapse;
@@ -44,82 +63,115 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
+
     </head>
     <body>
 
         <div id="wholeBody">
-            <form action="{{ url_for("gfg")}}" method="post"> 
+
+                        
+            <div class="jumbotron" id="jumbotron-heading">
+                <h1>Linear Programming Solver</h1>      
+                <p> Easily solve linear programming problems and get easier result interpretation</p>
+            </div>
+
+            <div class="jumbotron" id="jumbotron-form">
+                <form action="{{ url_for("gfg")}}" method="post"> 
             
-                <!--<label for="objective_function">Enter Objective Function: (Example Format: 8x1+5x2)</label> 
-                <input type="text" id="objective_function" name="objfunc" placeholder="objective_function"> 
-                
-                <label for="constraints">Enter Constraints: (Example Format: 2x1+x2<=1000,3x1+4x2<=2400,x1+x2<=700,x1-x2<=350,x1>=0,x2>=0) </label> 
-                <input type="text" id="constraints" name="constr" placeholder="constraints">-->
-                
-                <div class="form-group">
-                    <label for="objective_function">Enter Objective Function: (Example Format: 8x1+5x2)</label>
-                    <input type="text" class="form-control" id="objective_function" placeholder="Objective Function" name="objfunc">
-                </div>
-        
-                <div class="form-group">
-                    <label for="constraints">Enter Constraints: (Example Format: 2x1+x2<=1000,3x1+4x2<=2400,x1+x2<=700,x1-x2<=350,x1>=0,x2>=0)</label>
-                    <input type="text" class="form-control" id="constraints" placeholder="Constraints" name="constr">
-                </div>
-        
-                <button type="submit" class="btn btn-primary">Solve</button> </form> 
-                
+                    <!--<label for="objective_function">Enter Objective Function: (Example Format: 8x1+5x2)</label> 
+                    <input type="text" id="objective_function" name="objfunc" placeholder="objective_function"> 
+                    
+                    <label for="constraints">Enter Constraints: (Example Format: 2x1+x2<=1000,3x1+4x2<=2400,x1+x2<=700,x1-x2<=350,x1>=0,x2>=0) </label> 
+                    <input type="text" id="constraints" name="constr" placeholder="constraints">-->
+                    
+                    <div class="form-group">
+                        <label for="objective_function">Enter Objective Function: (Example Format: 8x1+5x2)</label>
+                        <input type="text" class="form-control" id="objective_function" placeholder="Objective Function" name="objfunc">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="constraints">Enter Constraints: (Example Format: 2x1+x2<=1000, 3x1+4x2<=2400, x1+x2<=700, x1-x2<=350, x1>=0, x2>=0)</label>
+                        <input type="text" class="form-control" id="constraints" placeholder="Constraints" name="constr">
+                    </div>
+            
+                    <button type="submit" class="btn btn-primary">Solve</button> 
+                </form> 
+            </div>
 
+            <div class="jumbotron" id="jumbotron-table">
                 <table class = "table table-hover" id="resultTable">
-                    <tr>
-                    <th>Result</th>
-                    </tr>
-
-                    <tr>
-                        <td>Objective Function : {{result['Objective_Function']}} <br> {{result['obj_func_exp']}}
-                        <br>{{result['NumOfVar_exp']}} <br>
-
-                        The optimal solution for this function is {{result['ObjectiveValue']}} <br>
-                        The corresponding optimal values for each of the variables are {{result['opt_val_list']}}
-
-                        <br>{{result['Constraints_exp']}}
-                        <br>{{result['Constraints']}}
-                        </td>
-                    </tr>
-
-
-                    <tr>
-                        <td>Range of optimality for X1: 
-                            {{result['RangeOfOptimality_minValX1']}} to {{result['RangeOfOptimality_maxValX1']}} <br>
-                            Range of optimality for X2: 
-                            {{result['RangeOfOptimality_minValX2']}} to {{result['RangeOfOptimality_maxValX2']}}
-                            <br>
-                            {{result['RangeOfOptimality_exp']}} </td>
-                    </tr>
-
-                    <tr>
-                        <td>Range of feasibility : {{result['RangeOfFeasibility_exp']}}<br>
-                            The binding constraint 1 can be increased 
-                            {{result['RangeOfFeasibility_optimalEquation1Increase']}} units and
-                             decreased {{result['RangeOfFeasibility_optimalEquation1Decrease']}} units <br>
-                            
-                            The binding constraint 2 can be increased 
-                            {{result['RangeOfFeasibility_optimalEquation2Increase']}} units and 
-                            decreased {{result['RangeOfFeasibility_optimalEquation2Decrease']}} units
-                            <br>
-                         </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            Constraint details <br>
-                            {{result['constraint_details_str']}}
-                        </td>
-                    </tr>
-
-
+                        <tr>
+                        <th>{{result['Result']}}</th>
+                        </tr>
+    
+                        <tr>
+                            <td>{{result['obj_func_exp']}} {{result['Objective_Function']}} <br> 
+                                <br>{{result['NumOfVar_exp']}} <br>
+    
+                                {{result['ObjectiveValue_exp']}} {{result['ObjectiveValue']}} <br>
+                                {{result['opt_val_exp']}} {{result['opt_val_list']}}
+    
+                                <br>{{result['Constraints_exp']}}
+                                <br>{{result['Constraints']}}
+                            </td>
+                        </tr>
+    
+    
+                        <tr>
+                            <td>{{result['roo_string_1']}} <br>
+                                {{result['roo_string_2']}}
+                                <br>
+                                {{result['RangeOfOptimality_exp']}} 
+                            </td>
+                        </tr>
+    
+                        <tr>
+                            <td>{{result['RangeOfFeasibility_exp']}}<br> 
+                                {{result['rof_string_1']}}  <br>
+                                {{result['rof_string_2']}}<br>
+                            </td>
+                        </tr>
+    
+                        <tr>
+                            <td>
+                                {{result['cdh']}} <br>
+                                {{result['constraint_details_str']}}
+                            </td>
+                        </tr>
+    
+    
                 </table>
+            </div>
+    
+                
+            </div>
+
+          
                 
         </div>
+
+        <!--<div class="container">
+            <h2>Panels with Contextual Classes</h2>
+            <div class="panel-group">
+             
+          
+              <div class="panel panel-primary">
+                <div class="panel-heading">Panel with panel-primary class</div>
+                <div class="panel-body">Panel Content</div>
+              </div>
+          
+              <div class="panel panel-success">
+                <div class="panel-heading">Panel with panel-success class</div>
+                <div class="panel-body">Panel Content</div>
+              </div>
+          
+            </div>
+          </div>-->
         
     </body>
 
