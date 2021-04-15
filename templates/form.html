@@ -12,6 +12,12 @@
                 color: aliceblue;
             }
 
+            #inner-jumbotron-green{
+                font-family: Georgia, 'Times New Roman', Times, serif;
+                background-color: rgb(215, 243, 208);
+                color: rgb(10, 63, 36);
+            }
+
             #jumbotron-form{
                 font-family: Georgia, 'Times New Roman', Times, serif;
                 background-color: rgb(241, 244, 247);
@@ -22,6 +28,10 @@
                 font-family: Georgia, 'Times New Roman', Times, serif;
                 background-color: rgb(245, 248, 250);
                 color: rgb(27, 47, 65);
+            }
+
+            #bold{
+                font-weight: bold;
             }
 
             table {
@@ -78,7 +88,7 @@
                         
             <div class="jumbotron" id="jumbotron-heading">
                 <h1>Linear Programming Solver</h1>      
-                <p> Easily solve linear programming problems and get easier result interpretation</p>
+                <p>Solve Linear Programming Problems Just in a Click and Get Easier Result Interpretation</p>
             </div>
 
             <div class="jumbotron" id="jumbotron-form">
@@ -111,52 +121,80 @@
                      
                   
                       <div class="panel panel-primary">
-                        <div class="panel-heading">Result</div>
+                        <div class="panel-heading">Optimal Solution</div>
                         <div class="panel-body">
-                            {{result['obj_func_exp']}} {{result['Objective_Function']}} <br> 
+                            {{result['obj_func_exp']}} <span id="bold"> {{result['Objective_Function']}} </span>  <br> 
                                 <br>{{result['NumOfVar_exp']}} <br>
-    
-                                <br>{{result['Constraints_exp']}}
-                                <br>{{result['Constraints']}}
-                           
+
                                 <br>
-                                {{result['ObjectiveValue_exp']}} {{result['ObjectiveValue']}} <br>
-                                {{result['opt_val_exp']}} {{result['opt_val_list']}}
+                            {{result['ObjectiveValue_exp']}} <span id="bold">{{result['ObjectiveValue']}}</span> <br>
+                            {{result['opt_val_exp']}} <span id="bold">{{result['opt_val_list']}}</span>
+    
+                                
+                           
                         </div>
                       </div>
                   
                       <div class="panel panel-success">
                         <div class="panel-heading">Constraint Details</div>
                         <div class="panel-body">
-                            {{result['cdh']}} <br>
+                           
+                            <br>{{result['Constraints_exp']}} <br>
+                            <br><span id="bold"> {{result['Constraints']}} </span> 
+
+                                <br> <br>
+
                                 {{result['constraint_details_str']}}
 
-                                The sensitivities of profit to resource quantities are commonly called shadow prices. <br>  <br> 
-                                Each ith resource has a shadow price yi. <br><br>
+                                <br><br>
+
+                                <div class="jumbotron" id="inner-jumbotron-green">
+                                The sensitivities of profit to resource quantities are commonly called shadow prices.
+                                Each ith resource has a shadow price yi. <br>
 
                                 A shadow price represents the maximal price at which we should be willing to buy additional units of a resource. 
                                 It also represents the minimal price at which we should be willing to sell units of the resource. 
                                 
-                                <br> <br> A shadow price might therefore be thought of as <b>the value per unit of a resource.</b>  
+                                A shadow price might therefore be thought of as <span id="bold">the value per unit of a resource.</span>  
                                 
-                                <br><br> Remarkably, if we compute the value of our entire stock of resources based on shadow prices, we get our optimal profit.
+                                Remarkably, if we compute the value of our entire stock of resources based on shadow prices, we get our optimal profit.
+                                </div>
+
+                                
+                        
                         </div>
                       </div>
     
                       <div class="panel panel-primary">
                         <div class="panel-heading">Sensitivity Analysis</div>
                         <div class="panel-body">
-                            {{result['RangeOfOptimality_exp']}} <br>
-                          
-                                {{result['roo_string_1']}} <br>
-                                {{result['roo_string_2']}}
-                                <br>
-                                <br>
 
-                                {{result['RangeOfFeasibility_exp']}}<br> 
+                            <div class="jumbotron" id="inner-jumbotron-green">
+                                <h4>Range Of Optimality</h4><br>
+                                The coefficient of the decision variables can be changed between this range keeping the optimal value unchanged <br><br>
+                                <span id="bold">{{result['roo_string_1']}} <br>
+                                {{result['roo_string_2']}}</span>
+                                <br>
+                                <br>
+                            </div>
+
+                                <div class="jumbotron" id="inner-jumbotron-green">
+
+                                    <h4>Range of feasibility : Determines the change range of the RHS of a constraint.</h4><br>
+
+                                    Assuming there are no other changes to the input parameters, the range of feasibility is
+                                    the range of values for a right hand side of a constraint, in which the shadow prices for the 
+                                    constraints remain unchanged.
+                                    <br>
+                                    In the range of feasibility the objective function value changes as follows: <br><br>
+                                    Change in objective value = Shadow price x Change in the right hand side value <br><br>
+
+                                    <span id="bold">{{result['rof_string_1']}}  <br>
+                                    {{result['rof_string_2']}}<br></span>
+
+                                </div>
                             
-                                {{result['rof_string_1']}}  <br>
-                                {{result['rof_string_2']}}<br>
+                                
                         </div>
                       </div>
                   

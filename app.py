@@ -511,9 +511,9 @@ def main(ObjectiveFunction, ConstraintList):
             print('x[',var,'] = ', x[var].solution_value())
             key = 'x'+str(var)+'_sol_val'
             key_exp = str(key)+"_exp"
-            ans_map[key] = x[var].solution_value()
+            ans_map[key] = round(x[var].solution_value(),2)
             ans_map[key_exp] = "The value of this decision variable in the optimal point."
-            optimal_value_list.append(x[var].solution_value())
+            optimal_value_list.append(round(x[var].solution_value(),2))
 
         print("offset ", solver.Objective().BestBound())
         ans_map["opt_val_list"] = optimal_value_list
@@ -591,16 +591,16 @@ def main(ObjectiveFunction, ConstraintList):
             constraint_map['constraint_exp'] = constraint_exp
             #binding_constraint_list.append(build_constraint)
             #get_constraint = val['constraint'].GetCoefficient(x[1]),"* x1
-            shadow_price_exp = " Shadow price for this constraint is "+ str(val['constraint'].dual_value())
+            shadow_price_exp = " Shadow price for this constraint is "+ str(round(val['constraint'].dual_value(),2))+". "
             print(shadow_price_exp)
 
             constraint_details_str = constraint_details_str + shadow_price_exp
 
-            constraint_map['shadow_price'] = val['constraint'].dual_value()
+            constraint_map['shadow_price'] = round(val['constraint'].dual_value(),2)
             constraint_map['shadow_price_exp'] = shadow_price_exp
         else:
             
-            constraint_details_str = constraint_details_str + ". "
+            constraint_details_str = constraint_details_str 
 
             constraint_exp = str(build_constraint)+" is a non-binding constraint & has no direct impact on the optimal solution. "
             print(constraint_exp)
@@ -613,16 +613,31 @@ def main(ObjectiveFunction, ConstraintList):
             constraint_map['dual_exp']=dual_exp
         
             if  val['slack'] >0.0:
-                slack_exp = " The total limit is not used yet. It had total limit of "+ str(val['constraint'].ub()) +" but used only " + str(val['constraint'].ub()-val['slack'])
-                print(slack_exp)
-                constraint_details_str = constraint_details_str + slack_exp
+                
 
                 #ans_map[]
                 constraint_map['total_limit']=val['constraint'].ub()
                 constraint_map['used']=val['constraint'].ub()-val['slack']
+    
+
+                if constraint_map['used']>0:
+                    slack_exp = " The total limit is not used yet. It had total limit of "+ str(val['constraint'].ub()) +" but used only " + str(val['constraint'].ub()-val['slack'])+" units. "
+                    print(slack_exp)
+                
+                elif constraint_map['used']==0:
+                    slack_exp = " The total limit is used. It had total limit of "+ str(val['constraint'].ub()) +" and used " + str(val['constraint'].ub()-val['slack'])+" units. "
+                    print(slack_exp)
+                
+                else:
+                    slack_exp = " The total limit exceeded. It had total limit of "+ str(val['constraint'].ub()) +" but it exceeded " + str(abs(val['constraint'].ub()-val['slack']))+" units. "
+                    print(slack_exp)
+
+                
+                constraint_details_str = constraint_details_str + slack_exp
                 constraint_map['slack_exp'] = slack_exp
+
             else:
-                slack_exp = " The total limit is not used yet. It had total limit of "+ str(val['constraint'].ub())+ " but used only "+str(val['constraint'].ub()+val['slack'])
+                slack_exp = " The total limit exceeded. It had total limit of "+ str(val['constraint'].ub())+ " nut used only "+str(val['constraint'].ub()+val['slack'])+" units. "
                 print(slack_exp)
                 constraint_details_str = constraint_details_str + slack_exp
                 constraint_map['slack_exp'] = slack_exp
@@ -645,6 +660,7 @@ def main(ObjectiveFunction, ConstraintList):
                     
     print("arg optimality: ",arg_optimality)
     print("arg optimality: ",arg_optimality)
+
     if(solver.NumVariables()==2):
             
         equationList=[]
@@ -688,10 +704,10 @@ def main(ObjectiveFunction, ConstraintList):
         ans_map['RangeOfOptimality_minValX2']=optimalityRange[0]['minValY']
         ans_map['RangeOfOptimality_maxValX2']=optimalityRange[0]['maxValY']
 
-        ans_map["roo_string_1"] = "Range of optimality for X1 is "+str(optimalityRange[0]['minValX'])+" to "+str(optimalityRange[0]['maxValX'])
-        ans_map["roo_string_2"] = "Range of optimality for X2 is "+str(optimalityRange[0]['minValY'])+" to "+str(optimalityRange[0]['maxValY'])
-        ans_map["RangeOfOptimality_exp"] = "The coeffiecient of the decision variables can be changed between this range keeping the optimal value unchanged."
-
+        ans_map["roo_string_1"] = "Range of optimality for X1 is "+str(round(optimalityRange[0]['minValX'],2))+" to "+str(round(optimalityRange[0]['maxValX'],2))
+        ans_map["roo_string_2"] = "Range of optimality for X2 is "+str(round(optimalityRange[0]['minValY'],2))+" to "+str(round(optimalityRange[0]['maxValY'],2))
+        ans_map["RangeOfOptimality_exp"] = "The coefficient of the decision variables can be changed between this range keeping the optimal value unchanged."
+        ans_map['roo_header'] = "Range Of Optimality "
 
         print("Range Of Feasibility")
         #equationList=[["2x1+x2-1000",0],["3x1+4x2-2400",0],["x1+x2-700",0],["x1-x2-350",0],["x1",1],["x2",1]]
@@ -704,12 +720,15 @@ def main(ObjectiveFunction, ConstraintList):
         ans_map['RangeOfFeasibility_optimalEquation2Increase'] = feasibilityRange[0]['optimalEquation2Increase']
         ans_map['RangeOfFeasibility_optimalEquation2Decrease'] = feasibilityRange[0]['optimalEquation2Decrease']
 
-        ans_map['rof_string_1'] = "The binding constraint 1 can be increased "+str(feasibilityRange[0]['optimalEquation1Increase'])+" units and decreased "+str(feasibilityRange[0]['optimalEquation1Decrease'])+" units"
-        ans_map['rof_string_2'] = "The binding constraint 2 can be increased "+str(feasibilityRange[0]['optimalEquation2Increase'])+" units and decreased "+str(feasibilityRange[0]['optimalEquation2Decrease'])+" units"
+        ans_map['rof_string_1'] = "The binding constraint 1 can be increased "+str(round(feasibilityRange[0]['optimalEquation1Increase'],2))+" units and decreased "+str(round(feasibilityRange[0]['optimalEquation1Decrease'],2))+" units"
+        ans_map['rof_string_2'] = "The binding constraint 2 can be increased "+str(round(feasibilityRange[0]['optimalEquation2Increase'],2))+" units and decreased "+str(round(feasibilityRange[0]['optimalEquation2Decrease'],2))+" units"
         ans_map['RangeOfFeasibility_exp'] = "Range of feasibility : Determines the change range of the RHS of a constraint."
     
-
-    
+    else:
+        ans_map['roo_string_1'] = "Range of Optimality not available."
+        ans_map['roo_string_2'] = "You can get the Range of Optimality for 2-variable linear programming problems for now!"
+        ans_map['rof_string_1'] = "Range of Feasibility not available."
+        ans_map['rof_string_2'] = "You can get the Range of Feasibility for 2-variable linear programming problems for now!"
     #print(getRangeOfOptimality(arg_optimality))
   
     return ans_map
