@@ -501,7 +501,7 @@ def main(ObjectiveFunction, ConstraintList):
         ans_map['solution_exists']= "yes"
         print('Solution:')
         print('Objective value =', solver.Objective().Value())
-        ans_map['ObjectiveValue'] = solver.Objective().Value()
+        ans_map['ObjectiveValue'] = round(solver.Objective().Value(),2)
         ans_map['ObjectiveValue_exp'] = "The optimal solution for this function is: "
 
         
