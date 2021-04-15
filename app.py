@@ -11,6 +11,7 @@ from ortools.linear_solver import pywraplp
 
 Obj_Func = ""
 sign = 3
+global ans_map
 ans_map = {}
 num_of_var = 0
 splitted_objective_function =""
@@ -91,9 +92,11 @@ def getExpr(splitted_objective_function,num_of_var):
     return obj_func
 
 def getRangeOfOptimality(equationList,optimalEquation):
-    
-    RangeOfOptimality = {}
-
+    print('optimalEquation',optimalEquation)
+    print('binding List',equationList)
+    optimalEquation = optimalEquation.split(' ')
+    optimalEquation =optimalEquation[1]
+    RangeOfOptimality=[]
     optimalEquation =optimalEquation.replace('x1','x')
     optimalEquation =optimalEquation.replace('x2','y')
     for i in range(len(equationList)):
@@ -119,7 +122,7 @@ def getRangeOfOptimality(equationList,optimalEquation):
         for ii in range(0,len(elemnt)):
             print(elemnt[ii])
             if(elemnt[ii]=='x1'):
-                realEquationList[i][0] = equationList[i][0].replace('x1', '1x1')
+                equationList[i][0] = equationList[i][0].replace('x1', '1x1')
             if (elemnt[ii] == 'x2'):
                 equationList[i][0] = equationList[i][0].replace('x2','1x2')
                 #print("hey",equationList[i][0])
@@ -136,7 +139,7 @@ def getRangeOfOptimality(equationList,optimalEquation):
         for ii in range(0,len(elemnt)):
             #print(elemnt[ii])
             if(elemnt[ii]=='x1'):
-                realEquationList[i][1] = equationList[i][1].replace('x1', '1x1')
+                equationList[i][1] = equationList[i][1].replace('x1', '1x1')
             if (elemnt[ii] == 'x2'):
                 equationList[i][1] = equationList[i][1].replace('x2','1x2')
                 #print("hey",equationList[i][1])
@@ -176,24 +179,25 @@ def getRangeOfOptimality(equationList,optimalEquation):
             minimumForCx = (-slope2)*optimalSlope[1]
             maximumForCy = optimalSlope[0]/(-slope2)
             minimumForCy = optimalSlope[0]/(-slope1)
-            print('range variable x1 [',minimumForCx,maximumForCx,']')
-            print('range variable x2 [', minimumForCy, maximumForCy, ']')
+            print('range variable x [',minimumForCx,maximumForCx,']')
+            print('range variable y [', minimumForCy, maximumForCy, ']')
         else:
             minimumForCx = (slope1) * optimalSlope[1]
             maximumForCx = (slope2) * optimalSlope[1]
             minimumForCy = optimalSlope[0] / (slope2)
             maximumForCy = optimalSlope[0] / (slope1)
-            print('range variable x1 [', minimumForCx, maximumForCx, ']')
-            print('range variable x2 [', minimumForCy, maximumForCy, ']')
+            print('range variable x [', minimumForCx, maximumForCx, ']')
+            print('range variable y [', minimumForCy, maximumForCy, ']')
 
-        RangeOfOptimality['minValX1'] = minimumForCx
-        RangeOfOptimality['maxValX1'] = maximumForCx
-        RangeOfOptimality['minValX2'] = minimumForCy
-        RangeOfOptimality['maxValX2'] = maximumForCy
-        
-        #RangeOfOptimality.append(rangeMap)
+        RangeOfOptimality.append({
+            "minValX": minimumForCx,
+            "maxValX": maximumForCx,
+            "minValY": minimumForCy,
+            "maxValY": maximumForCy,
+        })
 
     return RangeOfOptimality
+
 
 
 def isSatisfyAllEquation(equationList,intersectPoint):
@@ -228,23 +232,22 @@ def getRangeOfFeasibility(realEquationList,bindingEquationList):
     # # greater than constrains  == 1
     # # less than constrains  == 0
     # print(equation1)
-    
-    RangeOfFeasibility = {}
-
+    RangeOfFeasibility=[]
     for i in range(len(realEquationList)):
-        #print(realEquationList[i][0],realEquationList[i][0].rfind('x1'))
+        print(realEquationList[i][0],realEquationList[i][0].rfind('x1'))
         if(realEquationList[i][0].rfind('x2')==-1):
+            #realEquationList[i][0]='0x2+'+realEquationList[i][0]
             realEquationList[i][0]+='+0x2'
+            
 
         if (realEquationList[i][0].rfind('x1') == -1):
-            realEquationList[i][0] += '+0x1'
+            #realEquationList[i][0] = '0x1+'+realEquationList[i][0]
+            realEquationList[i][0]='0x1+'+realEquationList[i][0]
+            
 
     for i in range(len(realEquationList)):
         if len(re.split('[-+]', realEquationList[i][0]))<3:
             realEquationList[i][0]+='-0'
-
-
-
 
         elemnt  = re.split('[-+]', realEquationList[i][0])
 
@@ -260,21 +263,84 @@ def getRangeOfFeasibility(realEquationList,bindingEquationList):
         realEquationList[i][0] = realEquationList[i][0].replace('x2','y')
         realEquationList[i][0] = realEquationList[i][0].replace('x1', 'x')
 
+
+
+
+    for i in range(len(bindingEquationList)):
+        #print(realEquationList[i][0],realEquationList[i][0].rfind('x1'))
+        if(bindingEquationList[i][0].rfind('x2')==-1):
+            #bindingEquationList[i][0]='0x2+'+bindingEquationList[i][0]
+            bindingEquationList[i][0]+='+0x2'
+
+        if (bindingEquationList[i][0].rfind('x1') == -1):
+            #bindingEquationList[i][0] = '0x1+'+bindingEquationList[i][0]
+            bindingEquationList[i][0]='0x1+'+bindingEquationList[i][0]
+            
+        ########################################### begin
+        if(bindingEquationList[i][1].rfind('x2')==-1):
+            #bindingEquationList[i][1]='0x2+'+ bindingEquationList[i][1]
+            bindingEquationList[i][1]+='+0x2'
+
+        if (bindingEquationList[i][1].rfind('x1') == -1):
+            #bindingEquationList[i][1] = '0x1+'+ bindingEquationList[i][1] 
+            bindingEquationList[i][1]='0x1+'+bindingEquationList[i][1]
+        ################################## finish
+        
+        
+        
+    for i in range(len(bindingEquationList)):
+        if len(re.split('[-+]', bindingEquationList[i][0]))<3:
+            bindingEquationList[i][0]+='-0'
+
+        elemnt  = re.split('[-+]', bindingEquationList[i][0])
+
+        for ii in range(0,len(elemnt)):
+            #print(elemnt[ii])
+            if(elemnt[ii]=='x1'):
+                bindingEquationList[i][0] = bindingEquationList[i][0].replace('x1', '1x1')
+            if (elemnt[ii] == 'x2'):
+                bindingEquationList[i][0] = bindingEquationList[i][0].replace('x2','1x2')
+                #print(realEquationList[i][0])
+
+
+        bindingEquationList[i][0] = bindingEquationList[i][0].replace('x2','y')
+        bindingEquationList[i][0] = bindingEquationList[i][0].replace('x1', 'x')
+
+        ##################### begin
+        if len(re.split('[-+]', bindingEquationList[i][1]))<3:
+            bindingEquationList[i][1]+='-0'
+
+        elemnt  = re.split('[-+]', bindingEquationList[i][1])
+
+        for ii in range(0,len(elemnt)):
+            #print(elemnt[ii])
+            if(elemnt[ii]=='x1'):
+                bindingEquationList[i][1] = bindingEquationList[i][1].replace('x1', '1x1')
+            if (elemnt[ii] == 'x2'):
+                bindingEquationList[i][1] = bindingEquationList[i][1].replace('x2','1x2')
+                #print(realEquationList[i][0])
+
+
+        bindingEquationList[i][1] = bindingEquationList[i][1].replace('x2','y')
+        bindingEquationList[i][1] = bindingEquationList[i][1].replace('x1', 'x')
+        ########################################## finish
+        
     #print(realEquationList,len(bindingEquationList))
     for j in range(len(bindingEquationList)):
         equationList = realEquationList.copy()
         tempbindingEquationList = bindingEquationList.copy()
         equation1 = tempbindingEquationList[j][0].replace('x2','y')
+        equation1 = equation1.replace('x1','x')
         equation2 = tempbindingEquationList[j][1].replace('x2','y')
-
+        equation2 =  equation2.replace('x1','x')
         #print(equationList,j)
-        #print(equation1,equation2)
+        print(equation1,equation2)
         finfIndexList=[]
         for ii in range(0,len(equationList)):
             if equationList[ii][0]==equation1 or equationList[ii][0]==equation2:
                 finfIndexList.append(ii)
-        #print(finfIndexList)
-
+        print(finfIndexList)
+        print(equationList)
         del equationList[finfIndexList[0]]
         del equationList[finfIndexList[1]-1]
 
@@ -282,10 +348,10 @@ def getRangeOfFeasibility(realEquationList,bindingEquationList):
 
         point1 = [float(i) for i in re.split('[xy]', equation1)]
         point1[2] = - point1[2]
-        #print(point1)
+        print(point1)
         point2 = [float(i) for i in re.split('[xy]', equation2)]
         point2[2] = - point2[2]
-        #print(point2)
+        print(point2)
         cof = np.array([[point1[0], point1[1]], [point2[0], point2[1]]])
 
         optimalEquation1Increase,optimalEquation1Decrease,optimalEquation2Increase,optimalEquation2Decrease=0,0,0,0;
@@ -330,18 +396,22 @@ def getRangeOfFeasibility(realEquationList,bindingEquationList):
                 optimalEquation2Decrease = i
                 break
 
-        RangeOfFeasibility['optimalEquation1Increase'] = optimalEquation1Increase
-        RangeOfFeasibility['optimalEquation1Decrease'] = optimalEquation1Decrease
-        RangeOfFeasibility['optimalEquation2Increase'] = optimalEquation2Increase
-        RangeOfFeasibility['optimalEquation2Decrease'] = optimalEquation2Decrease
-        
+        RangeOfFeasibility.append({
+            'optimalEquation1Increase': optimalEquation1Increase,
+            'optimalEquation1Decrease' : optimalEquation1Decrease,
+            'optimalEquation2Increase': optimalEquation2Increase,
+            'optimalEquation2Decrease': optimalEquation2Decrease
+        })
     return RangeOfFeasibility
+
+
 
 def main(ObjectiveFunction, ConstraintList):
     # [START solver]
     # Create the linear solver with the GLOP backend.
     solver = pywraplp.Solver.CreateSolver('GLOP')
     # [END solver]
+    actual_binding_containts=[]
 
     # [START variables]
     infinity = solver.infinity()
@@ -352,7 +422,8 @@ def main(ObjectiveFunction, ConstraintList):
     command = ObjectiveFunction
     splitted_command = command.split()
 
-    ans_map['Result'] = "Result"
+    ans_map = {}
+    ans_map['Solver_Result'] = "Solver Result"
     ans_map['Objective_Function'] = command
     ans_map["obj_func_exp"] = " Need to find the optimal solution for the objective function: "
 
@@ -371,36 +442,10 @@ def main(ObjectiveFunction, ConstraintList):
     x = {i: solver.NumVar(0.0, infinity, f'x{i}') for i in range(1, num_of_var+1)}
 
     print('Number of variables =', solver.NumVariables())
-    if(solver.NumVariables()==2):
-        print("Range Of Optimality")
-        optimalityRange = getRangeOfOptimality([["3x1+4x2-2400","2x1+x2-1000"]],"8x1+5x2")
-        print(optimalityRange)
-        print()
-
-        ans_map['RangeOfOptimality_minValX1']=optimalityRange['minValX1']
-        ans_map['RangeOfOptimality_maxValX1']=optimalityRange['maxValX1']
-        ans_map['RangeOfOptimality_minValX2']=optimalityRange['minValX2']
-        ans_map['RangeOfOptimality_maxValX2']=optimalityRange['maxValX2']
-
-        ans_map["roo_string_1"] = "Range of optimality for X1 is "+str(optimalityRange['minValX1'])+" to "+str(optimalityRange['maxValX1'])
-        ans_map["roo_string_2"] = "Range of optimality for X2 is "+str(optimalityRange['minValX2'])+" to "+str(optimalityRange['maxValX2'])
-        ans_map["RangeOfOptimality_exp"] = "The coeffiecient of the decision variables can be changed between this range keeping the optimal value unchanged."
-
-
-        print("Range Of Feasibility")
-        equationList=[["2x1+x2-1000",0],["3x1+4x2-2400",0],["x1+x2-700",0],["x1-x2-350",0],["x1",1],["x2",1]]
-        feasibilityRange = getRangeOfFeasibility(equationList,[["3x+4x2-2400","2x+1x2-1000"]])
-        print(feasibilityRange)
-        
-        ans_map['RangeOfFeasibility_optimalEquation1Increase'] = feasibilityRange['optimalEquation1Increase']
-        ans_map['RangeOfFeasibility_optimalEquation1Decrease'] = feasibilityRange['optimalEquation1Decrease']
-        ans_map['RangeOfFeasibility_optimalEquation2Increase'] = feasibilityRange['optimalEquation2Increase']
-        ans_map['RangeOfFeasibility_optimalEquation2Decrease'] = feasibilityRange['optimalEquation2Decrease']
-
-        ans_map['rof_string_1'] = "The binding constraint 1 can be increased "+str(feasibilityRange['optimalEquation1Increase'])+" units and decreased "+str(feasibilityRange['optimalEquation1Decrease'])+" units"
-        ans_map['rof_string_2'] = "The binding constraint 2 can be increased "+str(feasibilityRange['optimalEquation2Increase'])+" units and decreased "+str(feasibilityRange['optimalEquation2Decrease'])+" units"
-        ans_map['RangeOfFeasibility_exp'] = "Range of feasibility : Determines the change range of the RHS of a constraint."
     
+    
+    
+ 
     ans_map['NumOfVar'] = solver.NumVariables()
     ans_map['NumOfVar_exp'] = "There are total " + str(solver.NumVariables()) + " decision variables"
     # [END variables]
@@ -542,6 +587,7 @@ def main(ObjectiveFunction, ConstraintList):
             print(constraint_exp)
 
             constraint_map['binding'] = 1
+            actual_binding_containts.append(build_constraint)
             constraint_map['constraint_exp'] = constraint_exp
             #binding_constraint_list.append(build_constraint)
             #get_constraint = val['constraint'].GetCoefficient(x[1]),"* x1
@@ -599,8 +645,71 @@ def main(ObjectiveFunction, ConstraintList):
                     
     print("arg optimality: ",arg_optimality)
     print("arg optimality: ",arg_optimality)
+    if(solver.NumVariables()==2):
             
+        equationList=[]
+        print(type(ConstraintList))
+        ConstraintList = ConstraintList.split(',')
+        ConstraintList[0] = ConstraintList[0].replace(' ','')
+        
+        for index in range(len(ConstraintList)):
+            bindTag=False
+            temp = ''
+            if ConstraintList[index].find('<=')!=-1: 
+                temp=ConstraintList[index].replace('<=','-')
+                bindTag=False
+            elif ConstraintList[index].find('>=0')!=-1: 
+                temp = ConstraintList[index].replace('>=0','')
+                bindTag=True
+            elif ConstraintList[index].find('>=')!=-1: 
+                temp = ConstraintList[index].replace('>=','-')
+                bindTag=True
+            
+            
+            for secondIndex in range(len(actual_binding_containts)):
+                actual_binding_containts[secondIndex] = actual_binding_containts[secondIndex].replace(' ','')
+                print(ConstraintList[index],actual_binding_containts[secondIndex])
+                if ConstraintList[index].find(actual_binding_containts[secondIndex])!=-1:
+                    actual_binding_containts[secondIndex]=temp
+                    break
+            
+            if bindTag : equationList.append([temp,1])
+            else:  equationList.append([temp,0])
+    
+        print("Range Of Optimality")
+        
+        print("Range Of Optimality")
+        optimalityRange = getRangeOfOptimality([actual_binding_containts.copy()],command)
+        print(optimalityRange)
+        print()
 
+        ans_map['RangeOfOptimality_minValX1']=optimalityRange[0]['minValX']
+        ans_map['RangeOfOptimality_maxValX1']=optimalityRange[0]['maxValX']
+        ans_map['RangeOfOptimality_minValX2']=optimalityRange[0]['minValY']
+        ans_map['RangeOfOptimality_maxValX2']=optimalityRange[0]['maxValY']
+
+        ans_map["roo_string_1"] = "Range of optimality for X1 is "+str(optimalityRange[0]['minValX'])+" to "+str(optimalityRange[0]['maxValX'])
+        ans_map["roo_string_2"] = "Range of optimality for X2 is "+str(optimalityRange[0]['minValY'])+" to "+str(optimalityRange[0]['maxValY'])
+        ans_map["RangeOfOptimality_exp"] = "The coeffiecient of the decision variables can be changed between this range keeping the optimal value unchanged."
+
+
+        print("Range Of Feasibility")
+        #equationList=[["2x1+x2-1000",0],["3x1+4x2-2400",0],["x1+x2-700",0],["x1-x2-350",0],["x1",1],["x2",1]]
+        print(actual_binding_containts,equationList)
+        feasibilityRange = getRangeOfFeasibility(equationList.copy(),[actual_binding_containts.copy()])
+        print(feasibilityRange)
+        
+        ans_map['RangeOfFeasibility_optimalEquation1Increase'] = feasibilityRange[0]['optimalEquation1Increase']
+        ans_map['RangeOfFeasibility_optimalEquation1Decrease'] = feasibilityRange[0]['optimalEquation1Decrease']
+        ans_map['RangeOfFeasibility_optimalEquation2Increase'] = feasibilityRange[0]['optimalEquation2Increase']
+        ans_map['RangeOfFeasibility_optimalEquation2Decrease'] = feasibilityRange[0]['optimalEquation2Decrease']
+
+        ans_map['rof_string_1'] = "The binding constraint 1 can be increased "+str(feasibilityRange[0]['optimalEquation1Increase'])+" units and decreased "+str(feasibilityRange[0]['optimalEquation1Decrease'])+" units"
+        ans_map['rof_string_2'] = "The binding constraint 2 can be increased "+str(feasibilityRange[0]['optimalEquation2Increase'])+" units and decreased "+str(feasibilityRange[0]['optimalEquation2Decrease'])+" units"
+        ans_map['RangeOfFeasibility_exp'] = "Range of feasibility : Determines the change range of the RHS of a constraint."
+    
+
+    
     #print(getRangeOfOptimality(arg_optimality))
   
     return ans_map

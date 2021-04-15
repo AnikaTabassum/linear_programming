@@ -36,12 +36,13 @@
             }
 
             td {
-                border: 1px solid #dddddd;
+                border: 1px solid rgb(27, 47, 65);
                 text-align: left;
+                padding: 10px;
             }
 
             th {
-                border: 1px solid #dddddd;
+                border: 1px solid rgb(27, 47, 65);
                 text-align: center;
             }
 
@@ -64,10 +65,10 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         
-        <!--<meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
     </head>
     <body>
@@ -104,6 +105,67 @@
             </div>
 
             <div class="jumbotron" id="jumbotron-table">
+                <div class="container">
+                    <h2>{{result['Solver_Result']}}</h2>
+                    <div class="panel-group" id="resultTable">
+                     
+                  
+                      <div class="panel panel-primary">
+                        <div class="panel-heading">Result</div>
+                        <div class="panel-body">
+                            {{result['obj_func_exp']}} {{result['Objective_Function']}} <br> 
+                                <br>{{result['NumOfVar_exp']}} <br>
+    
+                                <br>{{result['Constraints_exp']}}
+                                <br>{{result['Constraints']}}
+                           
+                                <br>
+                                {{result['ObjectiveValue_exp']}} {{result['ObjectiveValue']}} <br>
+                                {{result['opt_val_exp']}} {{result['opt_val_list']}}
+                        </div>
+                      </div>
+                  
+                      <div class="panel panel-success">
+                        <div class="panel-heading">Constraint Details</div>
+                        <div class="panel-body">
+                            {{result['cdh']}} <br>
+                                {{result['constraint_details_str']}}
+
+                                The sensitivities of profit to resource quantities are commonly called shadow prices. <br>  <br> 
+                                Each ith resource has a shadow price yi. <br><br>
+
+                                A shadow price represents the maximal price at which we should be willing to buy additional units of a resource. 
+                                It also represents the minimal price at which we should be willing to sell units of the resource. 
+                                
+                                <br> <br> A shadow price might therefore be thought of as <b>the value per unit of a resource.</b>  
+                                
+                                <br><br> Remarkably, if we compute the value of our entire stock of resources based on shadow prices, we get our optimal profit.
+                        </div>
+                      </div>
+    
+                      <div class="panel panel-primary">
+                        <div class="panel-heading">Sensitivity Analysis</div>
+                        <div class="panel-body">
+                            {{result['RangeOfOptimality_exp']}} <br>
+                          
+                                {{result['roo_string_1']}} <br>
+                                {{result['roo_string_2']}}
+                                <br>
+                                <br>
+
+                                {{result['RangeOfFeasibility_exp']}}<br> 
+                            
+                                {{result['rof_string_1']}}  <br>
+                                {{result['rof_string_2']}}<br>
+                        </div>
+                      </div>
+                  
+                    </div>
+                  </div>
+            </div>
+            
+
+            <!--<div class="jumbotron" id="jumbotron-table">
                 <table class = "table table-hover" id="resultTable">
                         <tr>
                         <th>{{result['Result']}}</th>
@@ -113,40 +175,65 @@
                             <td>{{result['obj_func_exp']}} {{result['Objective_Function']}} <br> 
                                 <br>{{result['NumOfVar_exp']}} <br>
     
-                                {{result['ObjectiveValue_exp']}} {{result['ObjectiveValue']}} <br>
-                                {{result['opt_val_exp']}} {{result['opt_val_list']}}
-    
                                 <br>{{result['Constraints_exp']}}
                                 <br>{{result['Constraints']}}
+                           
+                                <br>
+                                {{result['ObjectiveValue_exp']}} {{result['ObjectiveValue']}} <br>
+                                {{result['opt_val_exp']}} {{result['opt_val_list']}}
                             </td>
                         </tr>
     
-    
                         <tr>
-                            <td>{{result['roo_string_1']}} <br>
+
+                            <td>
+                                {{result['cdh']}} <br>
+                                {{result['constraint_details_str']}}
+
+                                The sensitivities of profit to resource quantities are commonly called shadow prices. <br>  <br> 
+                                Each ith resource has a shadow price yi. <br><br>
+
+                                A shadow price represents the maximal price at which we should be willing to buy additional units of a resource. 
+                                It also represents the minimal price at which we should be willing to sell units of the resource. 
+                                
+                                <br> <br> A shadow price might therefore be thought of as <b>the value per unit of a resource.</b>  
+                                
+                                <br><br> Remarkably, if we compute the value of our entire stock of resources based on shadow prices, we get our optimal profit.
+
+
+                           
+                                
+                            </td>
+
+                            
+                        </tr>
+
+                        <tr>
+
+                            <td>
+                                {{result['RangeOfOptimality_exp']}} <br>
+                          
+                                {{result['roo_string_1']}} <br>
                                 {{result['roo_string_2']}}
                                 <br>
-                                {{result['RangeOfOptimality_exp']}} 
                             </td>
+
+                            
                         </tr>
     
                         <tr>
                             <td>{{result['RangeOfFeasibility_exp']}}<br> 
+                            
                                 {{result['rof_string_1']}}  <br>
                                 {{result['rof_string_2']}}<br>
                             </td>
-                        </tr>
-    
-                        <tr>
-                            <td>
-                                {{result['cdh']}} <br>
-                                {{result['constraint_details_str']}}
-                            </td>
+
+                            
                         </tr>
     
     
                 </table>
-            </div>
+            </div>-->
     
                 
             </div>
